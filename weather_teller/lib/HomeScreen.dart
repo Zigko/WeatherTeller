@@ -1,49 +1,68 @@
 import 'dart:js';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:weather_teller/WeatherAPI.dart';
 
-class HomeScreen extends StatelessWidget {
-  HomeScreen({Key? key}) : super(key: key);
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({Key? key}) : super(key: key);
+
+  @override
+  State<StatefulWidget> createState() {
+    return _HomeScreenState();
+  }
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  //TODO put language and use INTL
+  final WeatherAPI weatherAPI = WeatherAPI("pt");
+
+  WeatherInfoForecast? forecast;
+
+  @override
+  void initState() {
+    super.initState();
+    var forecastTask = weatherAPI.getForecast("Coimbra");
+    forecastTask.then((value) {
+      setState(() {
+        forecast = value;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('WeatherTeller'),
+        title: const Text('WeatherTeller'),
         actions: [
           IconButton(
               onPressed: () {
                 Navigator.pushNamed(context, '/details');
               },
-              icon: Icon(Icons.add_location))
+              icon: const Icon(Icons.add_location))
         ],
       ),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [
-              Colors.grey.shade500,
-              Colors.blue,
-            ],
+            colors: [Colors.grey.shade500, Colors.blue],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
         ),
         child: Padding(
-          padding: const EdgeInsets.only(
-            left: 20,
-            right: 20,
-          ),
+          padding: const EdgeInsets.only(left: 20, right: 20),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               _cloudIcon(),
-              _temprature(),
+              _temperature(),
               _location(),
               _date(),
-              _weekPrediction(),
+              _weekList(),
             ],
           ),
         ),
@@ -51,32 +70,35 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  final days = ['Day 13', 'Day 14', 'Day 15', 'Day 16', 'Day 17'];
-
-  _weekPrediction() {
+  _weekList() {
+    if (forecast == null) return Container();
     return Padding(
       padding: const EdgeInsets.only(top: 80.0),
-      child: Container(
-        height: 50 * 5,
-        child: ListView.builder(
-          scrollDirection: Axis.vertical,
-          itemCount: days.length,
-          itemBuilder: (context, index) {
-            return Container(
-              height: 50,
-              child: Card(
-                child: Center(
-                  child: Text('${days[index]}'),
-                ),
-              ),
-            );
-          },
+      child: SizedBox(
+        height: 60.0 * forecast!.days.length,
+        child: Scrollbar(
+          child: ListView.separated(
+            separatorBuilder: (_, __) => const Divider(),
+            scrollDirection: Axis.vertical,
+            itemCount: forecast!.days.length,
+            itemBuilder: (context, index) {
+              var model = WeatherInfoDayModel(forecast!.days[index]);
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Text("${model.weekday}, ${model.monthDay}"),
+                  Image.network(model.imgPath),
+                  Text(model.temps),
+                ],
+              );
+            },
+          ),
         ),
       ),
     );
   }
 
-  _temprature() {
+  _temperature() {
     return Column(
       //crossAxisAlignment: CrossAxisAlignment.start,
       children: const [
@@ -121,5 +143,23 @@ class HomeScreen extends StatelessWidget {
         size: 80,
       ),
     );
+  }
+}
+
+class WeatherInfoDayModel {
+  static final DateFormat weekdayFormatter = DateFormat.E();
+  static final DateFormat monthDayFormatter = DateFormat.MMMd();
+
+  late final String weekday;
+  late final String monthDay;
+  late final String temps;
+
+  late final String imgPath;
+
+  WeatherInfoDayModel(WeatherInfoDay day) {
+    weekday = weekdayFormatter.format(day.date);
+    monthDay = monthDayFormatter.format(day.date);
+    temps = "${day.tempMax}º | ${day.tempMin}º";
+    imgPath = "https://openweathermap.org/img/wn/${day.icon}.png";
   }
 }
