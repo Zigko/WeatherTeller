@@ -2,6 +2,7 @@ import 'dart:js';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:weather_teller/WeatherAPI.dart';
 
@@ -16,18 +17,22 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   //TODO put language and use INTL
-  final WeatherAPI weatherAPI = WeatherAPI("pt");
+  final OpenWeatherAPI weatherAPI = OpenWeatherAPI("pt");
+  static final DateFormat monthDayFormatter = DateFormat.MMMMd();
 
   WeatherInfoForecast? forecast;
 
   @override
   void initState() {
     super.initState();
-    var forecastTask = weatherAPI.getForecast("Coimbra");
-    forecastTask.then((value) {
-      setState(() {
-        forecast = value;
-      });
+    weatherAPI.getForecast("Coimbra").then((value) {
+      if (value == null) {
+        Fluttertoast.showToast(
+            msg: "Error getting weather forecast",
+            toastLength: Toast.LENGTH_LONG);
+      } else {
+        setState(() => forecast = value);
+      }
     });
   }
 
@@ -61,7 +66,6 @@ class _HomeScreenState extends State<HomeScreen> {
               _cloudIcon(),
               _temperature(),
               _location(),
-              _date(),
               _weekList(),
             ],
           ),
@@ -100,49 +104,43 @@ class _HomeScreenState extends State<HomeScreen> {
 
   _temperature() {
     return Column(
-      //crossAxisAlignment: CrossAxisAlignment.start,
-      children: const [
+      children: [
         Text(
-          '-10',
-          style: TextStyle(fontSize: 80, fontWeight: FontWeight.w100),
+          "${forecast?.currentWeather.temp}",
+          style: const TextStyle(fontSize: 80, fontWeight: FontWeight.w100),
         ),
       ],
     );
   }
+
+  // Icon(Icons.brightness_3),
 
   _location() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      //crossAxisAlignment: CrossAxisAlignment.center,
-      children: const [
-        Icon(Icons.place),
-        SizedBox(
-          width: 20,
-        ),
-        Text('Coimbra, Portugal'),
-      ],
-    );
-  }
-
-  _date() {
-    return Column(
-      children: const [
-        SizedBox(
-          width: 20,
-        ),
-        Text('12/01/2021'),
+      children: [
+        const Icon(Icons.place),
+        if (forecast != null)
+          Column(
+            children: [
+              Text(forecast!.location),
+              Text(monthDayFormatter.format(forecast!.currentWeather.date)),
+            ],
+          ),
       ],
     );
   }
 
   _cloudIcon() {
-    return const Padding(
-      padding: EdgeInsets.all(8.0),
-      child: Icon(
-        Icons.cloud,
-        size: 80,
-      ),
-    );
+    if (forecast == null) return null;
+      return Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Image.network(
+            "https://openweathermap.org/img/wn/${forecast!.currentWeather.icon}@4x.png",
+            height: 160,
+            width: 160,
+            scale: 1,
+          ));
   }
 }
 
