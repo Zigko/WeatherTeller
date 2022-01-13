@@ -87,6 +87,7 @@ class WeatherInfoDay {
 
   WeatherInfoDay(this.blocks) {
     date = blocks[0].date;
+    var iconIsSet = false;
     for (var b in blocks) {
       if (b.tempMax > tempMax) tempMax = b.tempMax;
       if (b.tempMin < tempMin) tempMin = b.tempMin;
@@ -95,6 +96,10 @@ class WeatherInfoDay {
           weatherState = b.weatherState;
           icon = b.icon;
         }
+      } else if (!iconIsSet) {
+        iconIsSet = true;
+        weatherState = b.weatherState;
+        icon = b.icon;
       }
       humidity += b.humidity;
       windSpeed += b.windSpeed;
