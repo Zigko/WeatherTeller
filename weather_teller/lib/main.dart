@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:weather_teller/DetailsScreen.dart';
 import 'package:weather_teller/HomeScreen.dart';
 
 void main() {
+  initializeDateFormatting();
   runApp(const MyApp());
 }
 

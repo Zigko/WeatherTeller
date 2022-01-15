@@ -16,22 +16,38 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  //TODO put language and use INTL
-  final OpenWeatherAPI weatherAPI = OpenWeatherAPI("pt");
+  final OpenWeatherAPI weatherAPI = OpenWeatherAPI(Intl.defaultLocale ??= "en");
   static final DateFormat monthDayFormatter = DateFormat.MMMMd();
 
   WeatherInfoForecast? forecast;
 
+  String searchedLocation = "Coimbra";
+
+  bool animation = false;
+  bool isStart = true;
+  static const int animationDurationMs = 750;
+
   @override
   void initState() {
     super.initState();
-    weatherAPI.getForecast("Coimbra").then((value) {
+    weatherAPI.getForecast(searchedLocation).then((value) {
       if (value == null) {
         Fluttertoast.showToast(
             msg: "Error getting weather forecast",
             toastLength: Toast.LENGTH_LONG);
       } else {
-        setState(() => forecast = value);
+        forecast = value;
+        if (isStart) {
+          Future.delayed(const Duration(milliseconds: animationDurationMs), () {
+            setState(() {
+              animation = true;
+              isStart = false;
+            });
+          });
+        } else {
+          animation = true;
+        }
+        setState(() {});
       }
     });
   }
@@ -87,16 +103,31 @@ class _HomeScreenState extends State<HomeScreen> {
             itemCount: forecast!.days.length,
             itemBuilder: (context, index) {
               var model = WeatherInfoDayModel(forecast!.days[index]);
-              return Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Text("${model.weekday}, ${model.monthDay}"),
-                  Image.network(model.imgPath),
-                  Text(model.temps),
-                ],
-              );
+              return _animatedWeatherLine(model);
             },
           ),
+        ),
+      ),
+    );
+  }
+
+  _animatedWeatherLine(WeatherInfoDayModel model) {
+    return AnimatedOpacity(
+      duration: const Duration(milliseconds: animationDurationMs),
+      opacity: animation ? 1 : 0,
+      curve: Curves.easeInOutQuart,
+      child: AnimatedPadding(
+        duration: const Duration(milliseconds: animationDurationMs),
+        padding: animation
+            ? const EdgeInsets.all(4.0)
+            : const EdgeInsets.only(top: 10),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Text("${model.weekday}, ${model.monthDay}"),
+            Image.network(model.imgPath),
+            Text(model.temps),
+          ],
         ),
       ),
     );
@@ -113,7 +144,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // Icon(Icons.brightness_3),
+// Icon(Icons.brightness_3),
 
   _location() {
     return Row(
@@ -133,14 +164,20 @@ class _HomeScreenState extends State<HomeScreen> {
 
   _cloudIcon() {
     if (forecast == null) return null;
-      return Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Image.network(
-            "https://openweathermap.org/img/wn/${forecast!.currentWeather.icon}@4x.png",
-            height: 160,
-            width: 160,
-            scale: 1,
-          ));
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: AnimatedOpacity(
+        duration: const Duration(milliseconds: animationDurationMs),
+        opacity: animation ? 1 : 0,
+        curve: Curves.easeInOutQuart,
+        child: Image.network(
+          "https://openweathermap.org/img/wn/${forecast!.currentWeather.icon}@4x.png",
+          height: 160,
+          width: 160,
+          scale: 1,
+        ),
+      ),
+    );
   }
 }
 
