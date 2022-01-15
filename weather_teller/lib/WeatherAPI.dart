@@ -113,6 +113,7 @@ class WeatherInfoDay {
 
 class OpenWeatherAPI {
   static const String appid = "f748cf33755afb0c35061a61f1d8b9d7";
+  //appid : f748cf33755afb0c35061a61f1d8b9d7
 
   OpenWeatherAPI(this.lang);
 

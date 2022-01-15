@@ -21,43 +21,20 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final OpenWeatherAPI weatherAPI = OpenWeatherAPI(Intl.getCurrentLocale());
   static final DateFormat monthDayFormatter = DateFormat.MMMMd();
+  final SharedPref sharedPref = SharedPref();
 
-  SharedPref sharedPref = SharedPref();
-
+  late WeatherInfo weatherInfo;
   WeatherInfoForecast? forecast;
 
   String searchedLocation = "Coimbra";
-
   bool animation = false;
-  bool isStart = true;
+
   static const int animationDurationMs = 500;
-
-  late WeatherInfo weatherInfo;
-
 
   @override
   void initState() {
     super.initState();
-    weatherAPI.getForecast(searchedLocation).then((value) {
-      if (value == null) {
-        Fluttertoast.showToast(
-            msg: "Error getting weather forecast",
-            toastLength: Toast.LENGTH_LONG);
-      } else {
-        forecast = value;
-        if (isStart) {
-          Future.delayed(const Duration(milliseconds: animationDurationMs), () {
-            setState(() {
-              animation = true;
-              isStart = false;
-            });
-          });
-        } else {
-          animation = true;
-        }
-        setState(() {});
-      }
-    });
+    _refresh();
   }
 
   @override
@@ -107,12 +84,11 @@ class _HomeScreenState extends State<HomeScreen> {
       floatingActionButton: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 30.0),
-            child: FloatingActionButton(
-              onPressed: _refreesh,
-              child: Icon(Icons.refresh),
-            ),
+          FloatingActionButton(
+            onPressed: () {
+              _refresh();
+            },
+            child: const Icon(Icons.refresh),
           )
         ],
       ),
@@ -162,34 +138,26 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  _refreesh() {
-    setState(() {
-      weatherAPI.getForecast("Coimbra").then((value) {
-        if (value == null) {
+  _refresh() {
+    animation = false;
+    weatherAPI.getForecast(searchedLocation).then((value) {
+      if (value == null) {
           Fluttertoast.showToast(
               msg: "Error getting weather forecast",
               toastLength: Toast.LENGTH_LONG);
-        } else {
-          setState(() => forecast = value);
-        }
-      });
+      } else {
+        forecast = value;
+        setState(() {});
+        Future.delayed(const Duration(milliseconds: animationDurationMs), () {
+          setState(() {
+            animation = true;
+          });
+        });
+      }
     });
-    //_SaveWeatherInfo();
-  }
-
-  _temperature() {
-    return Column(
-      children: [
-        Text(
-          "${forecast?.currentWeather.temp}",
-          style: const TextStyle(fontSize: 80, fontWeight: FontWeight.w100),
-        ),
-      ],
-    );
   }
 
   // Icon(Icons.brightness_3),
-// Icon(Icons.brightness_3),
 
   _location() {
     return Row(
@@ -229,17 +197,15 @@ class _HomeScreenState extends State<HomeScreen> {
     var thisDay = forecast!.currentWeather;
     var weekDays = forecast!.days;
 
-    var weather = WeatherInfo(thisDay,weekDays);
+    var weather = WeatherInfo(thisDay, weekDays);
 
     //sharedPref.save("weather", weather);
   }
 
-  _GetWeatherInfo(){
+  _GetWeatherInfo() {
     var weather = sharedPref.read("weather");
     debugPrint(weather);
   }
-
-
 }
 
 class SharedPref {
@@ -277,17 +243,14 @@ class WeatherInfoDayModel {
   }
 }
 
-class WeatherInfo{
+class WeatherInfo {
   late WeatherInfoMoment today;
-  late List<WeatherInfoDay>  week = [];
+  late List<WeatherInfoDay> week = [];
 
-  WeatherInfo(WeatherInfoMoment thisDay, List<WeatherInfoDay>  weekDays ) {
+  WeatherInfo(WeatherInfoMoment thisDay, List<WeatherInfoDay> weekDays) {
     today = thisDay;
     week = weekDays;
     JsonHelper helper = JsonHelper();
     var jsonToday = helper.toJsonToday();
-
   }
-
-
 }
