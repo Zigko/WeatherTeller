@@ -16,7 +16,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final OpenWeatherAPI weatherAPI = OpenWeatherAPI(Intl.defaultLocale ??= "en");
+  final OpenWeatherAPI weatherAPI = OpenWeatherAPI(Intl.getCurrentLocale());
   static final DateFormat monthDayFormatter = DateFormat.MMMMd();
 
   WeatherInfoForecast? forecast;
@@ -25,7 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   bool animation = false;
   bool isStart = true;
-  static const int animationDurationMs = 750;
+  static const int animationDurationMs = 500;
 
   @override
   void initState() {
@@ -73,18 +73,27 @@ class _HomeScreenState extends State<HomeScreen> {
             end: Alignment.bottomCenter,
           ),
         ),
-        child: Padding(
-          padding: const EdgeInsets.only(left: 20, right: 20),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _cloudIcon(),
-              _temperature(),
-              _location(),
-              _weekList(),
-            ],
-          ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _cloudIcon(),
+            if (forecast != null)
+              Center(
+                child: Column(
+                  children: [
+                    Text(forecast!.currentWeather.description),
+                    Text(
+                      "${forecast?.currentWeather.temp}",
+                      style: const TextStyle(
+                          fontSize: 80, fontWeight: FontWeight.w100),
+                    ),
+                    _location(),
+                  ],
+                ),
+              ),
+            _weekList(),
+          ],
         ),
       ),
     );
@@ -93,7 +102,7 @@ class _HomeScreenState extends State<HomeScreen> {
   _weekList() {
     if (forecast == null) return Container();
     return Padding(
-      padding: const EdgeInsets.only(top: 80.0),
+      padding: const EdgeInsets.only(top: 80, left: 20, right: 20),
       child: SizedBox(
         height: 60.0 * forecast!.days.length,
         child: Scrollbar(
@@ -133,17 +142,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  _temperature() {
-    return Column(
-      children: [
-        Text(
-          "${forecast?.currentWeather.temp}",
-          style: const TextStyle(fontSize: 80, fontWeight: FontWeight.w100),
-        ),
-      ],
-    );
-  }
-
 // Icon(Icons.brightness_3),
 
   _location() {
@@ -163,7 +161,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   _cloudIcon() {
-    if (forecast == null) return null;
+    if (forecast == null) return Container();
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: AnimatedOpacity(

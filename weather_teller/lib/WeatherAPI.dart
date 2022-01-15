@@ -23,13 +23,13 @@ class WeatherState {
   WeatherState(this.weatherState, this.importance);
 
   static final HashMap states = HashMap.from({
-    "Thunderstorm": WeatherState("Thunderstorm", 7),
+    "Clear": WeatherState("Clear", 1),
+    "Atmosphere": WeatherState("Atmosphere", 2),
+    "Clouds": WeatherState("Clouds", 3),
     "Drizzle": WeatherState("Drizzle", 4),
     "Rain": WeatherState("Rain", 5),
     "Snow": WeatherState("Snow", 6),
-    "Atmosphere": WeatherState("Atmosphere", 2),
-    "Clear": WeatherState("Clear", 1),
-    "Clouds": WeatherState("Clouds", 3),
+    "Thunderstorm": WeatherState("Thunderstorm", 7),
   });
 }
 
@@ -191,28 +191,3 @@ class OpenWeatherAPI {
         weatherState, description, icon, windSpeed, 0);
   }
 }
-
-// class WeatherInfoCurrent {
-//   late DateTime date;
-//   late int temp;
-//   late int tempMax;
-//   late int tempMin;
-//   late int humidity;
-//   late WeatherState weatherState;
-//   late String description;
-//   late String icon;
-//   late int windSpeed;
-//   late int rainProb;
-//
-//   WeatherInfoCurrent(
-//       this.date,
-//       this.temp,
-//       this.tempMax,
-//       this.tempMin,
-//       this.humidity,
-//       this.weatherState,
-//       this.description,
-//       this.icon,
-//       this.windSpeed,
-//       this.rainProb);
-// }
