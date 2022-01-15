@@ -1,13 +1,18 @@
+import 'dart:convert';
 import 'dart:js';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:weather_teller/JsonHelper.dart';
 import 'package:weather_teller/WeatherAPI.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
+
+
 
   @override
   State<StatefulWidget> createState() {
@@ -20,20 +25,18 @@ class _HomeScreenState extends State<HomeScreen> {
   final OpenWeatherAPI weatherAPI = OpenWeatherAPI("pt");
   static final DateFormat monthDayFormatter = DateFormat.MMMMd();
 
+  SharedPref sharedPref = SharedPref();
+
   WeatherInfoForecast? forecast;
+
+  late WeatherInfo weatherInfo;
+
 
   @override
   void initState() {
     super.initState();
-    weatherAPI.getForecast("Coimbra").then((value) {
-      if (value == null) {
-        Fluttertoast.showToast(
-            msg: "Error getting weather forecast",
-            toastLength: Toast.LENGTH_LONG);
-      } else {
-        setState(() => forecast = value);
-      }
-    });
+    //
+    _refreesh();
   }
 
   @override
@@ -71,6 +74,18 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
       ),
+      floatingActionButton: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 30.0),
+            child: FloatingActionButton(
+              onPressed: _refreesh,
+              child: Icon(Icons.refresh),
+            ),
+          )
+        ],
+      ),
     );
   }
 
@@ -100,6 +115,21 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
     );
+  }
+
+  _refreesh() {
+    setState(() {
+      weatherAPI.getForecast("Coimbra").then((value) {
+        if (value == null) {
+          Fluttertoast.showToast(
+              msg: "Error getting weather forecast",
+              toastLength: Toast.LENGTH_LONG);
+        } else {
+          setState(() => forecast = value);
+        }
+      });
+    });
+    //_SaveWeatherInfo();
   }
 
   _temperature() {
@@ -133,14 +163,47 @@ class _HomeScreenState extends State<HomeScreen> {
 
   _cloudIcon() {
     if (forecast == null) return null;
-      return Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Image.network(
-            "https://openweathermap.org/img/wn/${forecast!.currentWeather.icon}@4x.png",
-            height: 160,
-            width: 160,
-            scale: 1,
-          ));
+    return Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Image.network(
+          "https://openweathermap.org/img/wn/${forecast!.currentWeather.icon}@4x.png",
+          height: 160,
+          width: 160,
+          scale: 1,
+        ));
+  }
+
+  _SaveWeatherInfo() async {
+    var thisDay = forecast!.currentWeather;
+    var weekDays = forecast!.days;
+
+    var weather = WeatherInfo(thisDay,weekDays);
+
+    //sharedPref.save("weather", weather);
+  }
+
+  _GetWeatherInfo(){
+    var weather = sharedPref.read("weather");
+    debugPrint(weather);
+  }
+
+
+}
+
+class SharedPref {
+  read(String key) async {
+    final prefs = await SharedPreferences.getInstance();
+    return json.decode(prefs.getString(key)!);
+  }
+
+  save(String key, value) async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString(key, json.encode(value));
+  }
+
+  remove(String key) async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.remove(key);
   }
 }
 
@@ -160,4 +223,19 @@ class WeatherInfoDayModel {
     temps = "${day.tempMax}º | ${day.tempMin}º";
     imgPath = "https://openweathermap.org/img/wn/${day.icon}.png";
   }
+}
+
+class WeatherInfo{
+  late WeatherInfoMoment today;
+  late List<WeatherInfoDay>  week = [];
+
+  WeatherInfo(WeatherInfoMoment thisDay, List<WeatherInfoDay>  weekDays ) {
+    today = thisDay;
+    week = weekDays;
+    JsonHelper helper = JsonHelper();
+    var jsonToday = helper.toJsonToday();
+
+  }
+
+
 }
