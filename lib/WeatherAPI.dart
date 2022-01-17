@@ -1,7 +1,7 @@
 import 'dart:collection';
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
-import 'package:geolocator/geolocator.dart';
+import 'package:location/location.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 
@@ -150,7 +150,7 @@ class OpenWeatherAPI {
   //api.openweathermap.org/data/2.5/weather? ......
   static final DateFormat dateTimeFormat = DateFormat("yyyy-MM-dd");
 
-  Future<WeatherInfoForecast> getForecastPosAsync(Position position) async {
+  Future<WeatherInfoForecast> getForecastPosAsync(LocationData position) async {
     var lat = position.latitude, lon = position.longitude;
     var options = _makeOptions(lat: lat, lon: lon);
     return _getForecastAsync("Lat: $lat,Lon: $lon", options);
