@@ -36,46 +36,60 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _refresh();
+    _loadFromDisk();
+    //_refresh();
+  }
+
+  _loadFromDisk() {
+    _getWeatherInfo().then((value) {
+      _updateWeather(value);
+    }).catchError((e) {
+      Fluttertoast.showToast(
+          msg: "Error loading from disk", toastLength: Toast.LENGTH_LONG);
+    });
   }
 
   _refresh() {
-    _updateWeather(weatherAPI.getForecastPlace(searchedLocation));
+    weatherAPI
+        .getForecastPlace(searchedLocation)
+        .then((value) => _updateWeather(value));
   }
 
   _weatherHere() {
     determinePosition().then((position) {
-      _updateWeather(weatherAPI.getForecastPos(position));
-    }).catchError((error) {
-      Fluttertoast.showToast(msg: error, toastLength: Toast.LENGTH_LONG);
-    });
+      weatherAPI
+          .getForecastPos(position)
+          .then((value) => _updateWeather(value))
+          .catchError((error) => Fluttertoast.showToast(
+              msg: error, toastLength: Toast.LENGTH_LONG));
+    }).catchError((error) =>
+        Fluttertoast.showToast(msg: error, toastLength: Toast.LENGTH_LONG));
   }
 
   //TODO fix Intl.getCurrentLocale() always en_US
   //TODO fix intl messages not in other languages, maybe previours fix fixes this fix
 
-  _updateWeather(Future<WeatherInfoForecast?> task) {
+  _updateWeather(WeatherInfoForecast? weatherInfoForecast) {
     animation = false;
     Fluttertoast.showToast(
         msg: "Locale: ${Intl.getCurrentLocale()}",
         toastLength: Toast.LENGTH_LONG);
-    task.then((value) {
-      if (value == null) {
-        Fluttertoast.showToast(
-            msg: "Error getting weather forecast",
-            toastLength: Toast.LENGTH_LONG);
-      } else {
-        forecast = value;
-        _saveWeatherInfo();
 
-        setState(() {});
-        Future.delayed(const Duration(milliseconds: animationDurationMs), () {
-          setState(() {
-            animation = true;
-          });
+    if (weatherInfoForecast == null) {
+      Fluttertoast.showToast(
+          msg: "Error getting weather forecast",
+          toastLength: Toast.LENGTH_LONG);
+    } else {
+      forecast = weatherInfoForecast;
+      _saveWeatherInfo();
+
+      setState(() {});
+      Future.delayed(const Duration(milliseconds: animationDurationMs), () {
+        setState(() {
+          animation = true;
         });
-      }
-    });
+      });
+    }
   }
 
   @override

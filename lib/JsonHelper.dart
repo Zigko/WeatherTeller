@@ -21,7 +21,7 @@ class JsonHelper {
     };
   }
 
-  static WeatherInfoMoment toWeatherMomentFromMap
+  static WeatherInfoMoment fromMapToWeatherMoment
       (Map<String, String> map) {
     var weatherMoment = WeatherInfoMoment.empty();
     weatherMoment.temp = int.parse(map['temp']!);
@@ -37,7 +37,22 @@ class JsonHelper {
     return weatherMoment;
   }
 
-  static WeatherInfoMoment toObjectWeatherMomentFromPrefs
+  static WeatherInfoDay fromMapToWeatherDay
+      (Map<String, String> map) {
+    var weatherMoment = WeatherInfoDay.empty();
+    weatherMoment.tempMax = int.parse(map['tempMax']!);
+    weatherMoment.tempMin = int.parse(map['tempMin']!);
+    weatherMoment.humidity = int.parse(map['humidity']!);
+    weatherMoment.windSpeed = int.parse(map['windSpeed']!);
+    weatherMoment.rainProb = int.parse(map['rainProb']!);
+    weatherMoment.icon = map['icon']!;
+    weatherMoment.description = map['description']!;
+    weatherMoment.date = DateTime.parse(map['date']!);
+    weatherMoment.weatherState = WeatherState.states[map['weatherState']!];
+    return weatherMoment;
+  }
+
+  static WeatherInfoMoment fromPrefsToWeatherMoment
       (SharedPreferences prefs) {
     var weatherMoment = WeatherInfoMoment.empty();
     weatherMoment.temp = prefs.getInt('temp')!;

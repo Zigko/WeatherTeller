@@ -27,5 +27,22 @@ class WeatherSaverLoader {
 
   Future<WeatherInfoForecast?> load() async {
     var prefs = await SharedPreferences.getInstance();
+    if (prefs.getString('location') == null) return null;
+
+    var forecast = WeatherInfoForecast.empty();
+
+    var currentWeatherMap = jsonDecode(prefs.getString('currentWeather')!);
+    forecast.currentWeather =
+        JsonHelper.fromMapToWeatherMoment(currentWeatherMap);
+    forecast.currentDay = DateTime.parse(prefs.getString('currentDay')!);
+    forecast.language = prefs.getString('language')!;
+    forecast.location = prefs.getString('location')!;
+    var daysJsonList = prefs.getStringList('days') as List<Map<String, String>>;
+    var days = <WeatherInfoDay>[];
+    for (var day in daysJsonList) {
+      days.add(JsonHelper.fromMapToWeatherDay(day));
+    }
+
+    forecast.days = days;
   }
 }

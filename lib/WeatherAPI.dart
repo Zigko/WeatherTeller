@@ -14,6 +14,8 @@ class WeatherInfoForecast {
 
   WeatherInfoForecast(this.days, this.currentWeather, this.currentDay,
       this.location, this.language);
+
+  WeatherInfoForecast.empty();
 }
 
 class WeatherState {
@@ -92,6 +94,8 @@ class WeatherInfoDay {
   late int windSpeed = 0;
   late int rainProb = 0;
   late final List<WeatherInfoMoment> blocks;
+
+  WeatherInfoDay.empty();
 
   WeatherInfoDay(this.blocks) {
     date = blocks[0].date;
