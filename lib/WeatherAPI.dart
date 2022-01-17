@@ -113,6 +113,7 @@ class WeatherInfoDay {
         iconIsSet = true;
         weatherState = b.weatherState;
         icon = b.icon;
+        description = b.description;
       }
       humidity += b.humidity;
       windSpeed += b.windSpeed;
@@ -149,24 +150,27 @@ class OpenWeatherAPI {
   //api.openweathermap.org/data/2.5/weather? ......
   static final DateFormat dateTimeFormat = DateFormat("yyyy-MM-dd");
 
-  Future<WeatherInfoForecast?> getForecastPos(Position position) async {
+  Future<WeatherInfoForecast> getForecastPosAsync(Position position) async {
     var lat = position.latitude, lon = position.longitude;
     var options = _makeOptions(lat: lat, lon: lon);
-    return _getForecast("Lat: $lat,Lon: $lon", options);
+    return _getForecastAsync("Lat: $lat,Lon: $lon", options);
   }
 
-  Future<WeatherInfoForecast?> getForecastPlace(String place) async {
+  Future<WeatherInfoForecast> getForecastPlaceAsync(String place) async {
     var options = _makeOptions(place: place);
-    return _getForecast(place, options);
+    return _getForecastAsync(place, options);
   }
 
-  Future<WeatherInfoForecast?> _getForecast(
+  Future<WeatherInfoForecast> _getForecastAsync(
       String placeName, String options) async {
-    var currentWeatherTask = _getDayDetails(options);
+    var currentWeatherTask = _getDayDetailsAsync(options);
 
     var uri = Uri.parse(forecastURI + options + remainingQuery);
     var response = await http.get(uri);
-    if (response.statusCode != 200) return null;
+
+    if (response.statusCode != 200) {
+      throw Exception("Error getting current weather");
+    }
 
     var decodedResponse = jsonDecode(utf8.decode(response.bodyBytes)) as Map;
     var list = <WeatherInfoDay>[];
@@ -191,7 +195,6 @@ class OpenWeatherAPI {
     }
 
     var currentWeather = await currentWeatherTask;
-    if (currentWeather == null) return null;
 
     return WeatherInfoForecast(
         list, currentWeather, DateTime.now(), placeName, lang);
@@ -209,11 +212,13 @@ class OpenWeatherAPI {
     return options;
   }
 
-  Future<WeatherInfoMoment?> _getDayDetails(String options) async {
+  Future<WeatherInfoMoment> _getDayDetailsAsync(String options) async {
     var uri = Uri.parse(weatherURI + options + remainingQuery);
     var response = await http.get(uri);
 
-    if (response.statusCode != 200) return null;
+    if (response.statusCode != 200) {
+      throw Exception("Error getting current weather");
+    }
 
     var root =
         jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;

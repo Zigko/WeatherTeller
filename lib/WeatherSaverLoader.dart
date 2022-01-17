@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:weather/HomeScreen.dart';
 import 'package:weather/JsonHelper.dart';
 import 'package:weather/WeatherAPI.dart';
 
@@ -37,12 +36,14 @@ class WeatherSaverLoader {
     forecast.currentDay = DateTime.parse(prefs.getString('currentDay')!);
     forecast.language = prefs.getString('language')!;
     forecast.location = prefs.getString('location')!;
-    var daysJsonList = prefs.getStringList('days') as List<Map<String, String>>;
+    var daysJsonList = prefs.getStringList('days') as List<String>;
     var days = <WeatherInfoDay>[];
-    for (var day in daysJsonList) {
-      days.add(JsonHelper.fromMapToWeatherDay(day));
+    for (var dayJsonStr in daysJsonList) {
+      var decoded = jsonDecode(dayJsonStr) as Map<String, dynamic>;
+      days.add(JsonHelper.fromMapToWeatherDay(decoded));
     }
 
     forecast.days = days;
+    return forecast;
   }
 }

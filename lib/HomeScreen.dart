@@ -42,24 +42,34 @@ class _HomeScreenState extends State<HomeScreen> {
 
   _loadFromDisk() {
     _getWeatherInfo().then((value) {
-      _updateWeather(value);
-    }).catchError((e) {
-      Fluttertoast.showToast(
-          msg: "Error loading from disk", toastLength: Toast.LENGTH_LONG);
+      if (value != null) {
+        _updateWeatherScreen(value);
+      }
     });
+    //     .catchError((e) {
+    //   Fluttertoast.showToast(
+    //       msg: "Error loading from disk", toastLength: Toast.LENGTH_LONG);
+    // });
   }
 
   _refresh() {
     weatherAPI
-        .getForecastPlace(searchedLocation)
-        .then((value) => _updateWeather(value));
+        .getForecastPlaceAsync(searchedLocation)
+        .then((value) => _updateWeatherScreen(value))
+        .catchError((error) => Fluttertoast.showToast(
+            msg: "Error getting weather forecast",
+            toastLength: Toast.LENGTH_LONG));
+
+    Fluttertoast.showToast(
+        msg: "Locale: ${Intl.getCurrentLocale()}",
+        toastLength: Toast.LENGTH_LONG);
   }
 
   _weatherHere() {
     determinePosition().then((position) {
       weatherAPI
-          .getForecastPos(position)
-          .then((value) => _updateWeather(value))
+          .getForecastPosAsync(position)
+          .then((value) => _updateWeatherScreen(value))
           .catchError((error) => Fluttertoast.showToast(
               msg: error, toastLength: Toast.LENGTH_LONG));
     }).catchError((error) =>
@@ -69,27 +79,17 @@ class _HomeScreenState extends State<HomeScreen> {
   //TODO fix Intl.getCurrentLocale() always en_US
   //TODO fix intl messages not in other languages, maybe previours fix fixes this fix
 
-  _updateWeather(WeatherInfoForecast? weatherInfoForecast) {
+  _updateWeatherScreen(WeatherInfoForecast weatherInfoForecast) {
     animation = false;
-    Fluttertoast.showToast(
-        msg: "Locale: ${Intl.getCurrentLocale()}",
-        toastLength: Toast.LENGTH_LONG);
+    forecast = weatherInfoForecast;
+    _saveWeatherInfo(weatherInfoForecast);
 
-    if (weatherInfoForecast == null) {
-      Fluttertoast.showToast(
-          msg: "Error getting weather forecast",
-          toastLength: Toast.LENGTH_LONG);
-    } else {
-      forecast = weatherInfoForecast;
-      _saveWeatherInfo();
-
-      setState(() {});
-      Future.delayed(const Duration(milliseconds: animationDurationMs), () {
-        setState(() {
-          animation = true;
-        });
+    setState(() {});
+    Future.delayed(const Duration(milliseconds: animationDurationMs), () {
+      setState(() {
+        animation = true;
       });
-    }
+    });
   }
 
   @override
@@ -227,12 +227,12 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  _saveWeatherInfo() async {
+  _saveWeatherInfo(WeatherInfoForecast toSave) async {
     // var thisDay = forecast!.currentWeather;
     // var weekDays = forecast!.days;
     // var weather = WeatherInfo(thisDay, weekDays);
     //sharedPref.save("weather", weather);
-    saverLoader.save(forecast!);
+    saverLoader.save(toSave);
   }
 
   Future<WeatherInfoForecast?> _getWeatherInfo() async {
