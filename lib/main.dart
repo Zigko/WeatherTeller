@@ -1,11 +1,18 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
 import 'package:weather/DetailsScreen.dart';
 import 'package:weather/HomeScreen.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'generated/l10n.dart';
 
 void main() {
-  initializeDateFormatting();
+  Intl.defaultLocale = Platform.localeName;
+  // initializeDateFormatting(Intl.defaultLocale).then((value) {
   runApp(const MyApp());
+  // });
 }
 
 class MyApp extends StatelessWidget {
@@ -20,6 +27,13 @@ class MyApp extends StatelessWidget {
         brightness: Brightness.dark,
         scaffoldBackgroundColor: Colors.blue,
       ),
+      localizationsDelegates: const [
+        S.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: S.delegate.supportedLocales,
       initialRoute: '/',
       routes: {
         '/': (_) => const HomeScreen(),

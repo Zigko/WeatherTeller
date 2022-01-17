@@ -169,7 +169,10 @@ class OpenWeatherAPI {
     var response = await http.get(uri);
 
     if (response.statusCode != 200) {
-      throw Exception("Error getting current weather");
+      if (response.statusCode == 404) {
+        return Future.error(Intl.message('', name: 'city_not_found'));
+      }
+      return Future.error(Intl.message('', name: 'error_forecast'));
     }
 
     var decodedResponse = jsonDecode(utf8.decode(response.bodyBytes)) as Map;
@@ -217,7 +220,10 @@ class OpenWeatherAPI {
     var response = await http.get(uri);
 
     if (response.statusCode != 200) {
-      throw Exception("Error getting current weather");
+      if (response.statusCode == 404) {
+        return Future.error(Intl.message('', name: 'city_not_found'));
+      }
+      return Future.error(Intl.message('', name: 'error_forecast'));
     }
 
     var root =

@@ -1,10 +1,6 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:weather/JsonHelper.dart';
 import 'package:weather/WeatherAPI.dart';
 import 'package:weather/Location.dart';
 import 'package:weather/WeatherSaverLoader.dart';
@@ -19,7 +15,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final OpenWeatherAPI weatherAPI = OpenWeatherAPI(Intl.getCurrentLocale());
+  final OpenWeatherAPI weatherAPI =
+      OpenWeatherAPI(Intl.getCurrentLocale().substring(0, 2));
   static final DateFormat monthDayFormatter = DateFormat.MMMMd();
 
   final WeatherSaverLoader saverLoader = WeatherSaverLoader();
@@ -30,6 +27,9 @@ class _HomeScreenState extends State<HomeScreen> {
   bool animation = false;
 
   static const int animationDurationMs = 500;
+
+  final myController = TextEditingController();
+  bool typing = false;
 
   // Navigator.pushNamed(context, '/details')
 
@@ -46,23 +46,15 @@ class _HomeScreenState extends State<HomeScreen> {
         _updateWeatherScreen(value);
       }
     });
-    //     .catchError((e) {
-    //   Fluttertoast.showToast(
-    //       msg: "Error loading from disk", toastLength: Toast.LENGTH_LONG);
-    // });
   }
 
   _refresh() {
     weatherAPI
         .getForecastPlaceAsync(searchedLocation)
         .then((value) => _updateWeatherScreen(value))
-        .catchError((error) => Fluttertoast.showToast(
-            msg: "Error getting weather forecast",
-            toastLength: Toast.LENGTH_LONG));
-
-    Fluttertoast.showToast(
-        msg: "Locale: ${Intl.getCurrentLocale()}",
-        toastLength: Toast.LENGTH_LONG);
+        .catchError((error) {
+      Fluttertoast.showToast(msg: error, toastLength: Toast.LENGTH_LONG);
+    });
   }
 
   _weatherHere() {
@@ -72,11 +64,11 @@ class _HomeScreenState extends State<HomeScreen> {
           .then((value) => _updateWeatherScreen(value))
           .catchError((error) => Fluttertoast.showToast(
               msg: error, toastLength: Toast.LENGTH_LONG));
-    }).catchError((error) =>
-        Fluttertoast.showToast(msg: error, toastLength: Toast.LENGTH_LONG));
+    }).catchError((error) {
+      Fluttertoast.showToast(msg: error, toastLength: Toast.LENGTH_LONG);
+    });
   }
 
-  //TODO fix Intl.getCurrentLocale() always en_US
   //TODO fix intl messages not in other languages, maybe previours fix fixes this fix
 
   _updateWeatherScreen(WeatherInfoForecast weatherInfoForecast) {
@@ -96,12 +88,27 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('WeatherTeller'),
+        title:
+            typing ? _searchText() : const Center(child: Text("WeatherTeller")),
         actions: [
           IconButton(
               onPressed: () => _weatherHere(),
               icon: const Icon(Icons.add_location))
         ],
+        leading: IconButton(
+          icon: Icon(typing ? Icons.done : Icons.search),
+          onPressed: () {
+            //TODO correr isto quando se clica no enter
+            setState(() {
+              typing = !typing;
+              var text = myController.text;
+              if (text.isNotEmpty && text != searchedLocation) {
+                searchedLocation = text;
+                _refresh();
+              }
+            });
+          },
+        ),
       ),
       body: Container(
         decoration: BoxDecoration(
@@ -147,6 +154,22 @@ class _HomeScreenState extends State<HomeScreen> {
             child: const Icon(Icons.refresh),
           )
         ],
+      ),
+    );
+  }
+
+  _searchText() {
+    return TextField(
+      controller: myController,
+      decoration: InputDecoration(
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(20.0)),
+          hintText: searchedLocation,
+          hintStyle: const TextStyle(color: Colors.grey),
+          fillColor: Colors.white),
+      style: const TextStyle(
+        fontSize: 20.0,
+        //height: 1.0,
+        color: Colors.white,
       ),
     );
   }

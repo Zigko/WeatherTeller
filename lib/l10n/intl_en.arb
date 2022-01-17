@@ -1,0 +1,7 @@
+{
+    "gps_disabled": "Location services are disabled",
+    "gps_denied": "Location permissions are denied",
+    "gps_blocked": "Location permissions are permanently denied, we cannot request permissions",
+    "city_not_found": "City not found",
+    "error_forecast": "Error getting forecast"
+}

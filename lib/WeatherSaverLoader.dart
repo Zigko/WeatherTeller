@@ -16,10 +16,11 @@ class WeatherSaverLoader {
     prefs.setString('language', forecast.language);
     prefs.setString('location', forecast.location);
 
-    var days = <Map<String, dynamic>>[];
+    var days = <Map<String, String>>[];
     for (var day in forecast.days) {
       days.add(JsonHelper.toMapWeekDay(day));
     }
+
     var daysJson = days.map((e) => jsonEncode(e)).toList();
     prefs.setStringList('days', daysJson);
   }
