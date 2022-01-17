@@ -23,11 +23,15 @@ class _HomeScreenState extends State<HomeScreen> {
   static final DateFormat monthDayFormatter = DateFormat.MMMMd();
   final SharedPref sharedPref = SharedPref();
 
+  final myController = TextEditingController();
+
   late WeatherInfo weatherInfo;
   WeatherInfoForecast? forecast;
 
   String searchedLocation = "Coimbra";
   bool animation = false;
+
+  bool typing = false;
 
   static const int animationDurationMs = 500;
 
@@ -41,7 +45,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('WeatherTeller'),
+        title: typing ? _searchText() : Center(child: Text("WeatherTeller")),
         actions: [
           IconButton(
               onPressed: () {
@@ -49,6 +53,18 @@ class _HomeScreenState extends State<HomeScreen> {
               },
               icon: const Icon(Icons.add_location))
         ],
+        leading: IconButton(
+          icon: Icon(typing ? Icons.done : Icons.search),
+          onPressed: () {
+            setState(() {
+              typing = !typing;
+              var text = myController.text;
+              if(text.isNotEmpty && text != searchedLocation){
+                searchedLocation = text;
+              }
+            });
+          },
+        ),
       ),
       body: Container(
         decoration: BoxDecoration(
@@ -91,6 +107,23 @@ class _HomeScreenState extends State<HomeScreen> {
             child: const Icon(Icons.refresh),
           )
         ],
+      ),
+    );
+  }
+
+  _searchText(){
+    return TextField(
+      controller: myController,
+      decoration: InputDecoration(
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(20.0)),
+          hintText: searchedLocation,
+          hintStyle: const TextStyle(color: Colors.grey),
+          fillColor: Colors.white
+      ),
+      style: const TextStyle(
+        fontSize: 20.0,
+        //height: 1.0,
+        color: Colors.white,
       ),
     );
   }
@@ -142,9 +175,9 @@ class _HomeScreenState extends State<HomeScreen> {
     animation = false;
     weatherAPI.getForecast(searchedLocation).then((value) {
       if (value == null) {
-          Fluttertoast.showToast(
-              msg: "Error getting weather forecast",
-              toastLength: Toast.LENGTH_LONG);
+        Fluttertoast.showToast(
+            msg: "Error getting weather forecast",
+            toastLength: Toast.LENGTH_LONG);
       } else {
         forecast = value;
         setState(() {});
