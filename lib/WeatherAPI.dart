@@ -46,6 +46,8 @@ class WeatherInfoMoment {
   late int windSpeed;
   late int rainProb;
 
+  WeatherInfoMoment.empty();
+
   WeatherInfoMoment(
       this.date,
       this.temp,
@@ -72,6 +74,11 @@ class WeatherInfoMoment {
     windSpeed = root["wind"]["speed"].toInt();
     rainProb = (root["pop"] * 100).toInt();
   }
+
+  @override
+  String toString() {
+    return 'WeatherInfoMoment{date: $date, temp: $temp, tempMax: $tempMax, tempMin: $tempMin, humidity: $humidity, weatherState: $weatherState, description: $description, icon: $icon, windSpeed: $windSpeed, rainProb: $rainProb}';
+  }
 }
 
 class WeatherInfoDay {
@@ -96,6 +103,7 @@ class WeatherInfoDay {
         if (b.weatherState.importance >= weatherState.importance) {
           weatherState = b.weatherState;
           icon = b.icon;
+          description = b.description;
         }
       } else if (!iconIsSet) {
         iconIsSet = true;

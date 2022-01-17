@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:weather/JsonHelper.dart';
 import 'package:weather/WeatherAPI.dart';
 import 'package:weather/Location.dart';
+import 'package:weather/WeatherSaverLoader.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -20,9 +21,9 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final OpenWeatherAPI weatherAPI = OpenWeatherAPI(Intl.getCurrentLocale());
   static final DateFormat monthDayFormatter = DateFormat.MMMMd();
-  final SharedPref sharedPref = SharedPref();
 
-  late WeatherInfo weatherInfo;
+  final WeatherSaverLoader saverLoader = WeatherSaverLoader();
+
   WeatherInfoForecast? forecast;
 
   String searchedLocation = "Coimbra";
@@ -39,12 +40,12 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   _refresh() {
-    _updateScreen(weatherAPI.getForecastPlace(searchedLocation));
+    _updateWeather(weatherAPI.getForecastPlace(searchedLocation));
   }
 
   _weatherHere() {
     determinePosition().then((position) {
-      _updateScreen(weatherAPI.getForecastPos(position));
+      _updateWeather(weatherAPI.getForecastPos(position));
     }).catchError((error) {
       Fluttertoast.showToast(msg: error, toastLength: Toast.LENGTH_LONG);
     });
@@ -53,7 +54,7 @@ class _HomeScreenState extends State<HomeScreen> {
   //TODO fix Intl.getCurrentLocale() always en_US
   //TODO fix intl messages not in other languages, maybe previours fix fixes this fix
 
-  _updateScreen(Future<WeatherInfoForecast?> task) {
+  _updateWeather(Future<WeatherInfoForecast?> task) {
     animation = false;
     Fluttertoast.showToast(
         msg: "Locale: ${Intl.getCurrentLocale()}",
@@ -65,6 +66,8 @@ class _HomeScreenState extends State<HomeScreen> {
             toastLength: Toast.LENGTH_LONG);
       } else {
         forecast = value;
+        _saveWeatherInfo();
+
         setState(() {});
         Future.delayed(const Duration(milliseconds: animationDurationMs), () {
           setState(() {
@@ -160,8 +163,8 @@ class _HomeScreenState extends State<HomeScreen> {
       child: AnimatedPadding(
         duration: const Duration(milliseconds: animationDurationMs),
         padding: animation
-            ? const EdgeInsets.all(4.0)
-            : const EdgeInsets.only(top: 10),
+            ? const EdgeInsets.only(top: 5)
+            : const EdgeInsets.only(top: 15),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
@@ -210,35 +213,18 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  _SaveWeatherInfo() async {
-    var thisDay = forecast!.currentWeather;
-    var weekDays = forecast!.days;
-
-    var weather = WeatherInfo(thisDay, weekDays);
-
+  _saveWeatherInfo() async {
+    // var thisDay = forecast!.currentWeather;
+    // var weekDays = forecast!.days;
+    // var weather = WeatherInfo(thisDay, weekDays);
     //sharedPref.save("weather", weather);
+    saverLoader.save(forecast!);
   }
 
-  _GetWeatherInfo() {
-    var weather = sharedPref.read("weather");
-    debugPrint(weather);
-  }
-}
-
-class SharedPref {
-  read(String key) async {
-    final prefs = await SharedPreferences.getInstance();
-    return json.decode(prefs.getString(key)!);
-  }
-
-  save(String key, value) async {
-    final prefs = await SharedPreferences.getInstance();
-    prefs.setString(key, json.encode(value));
-  }
-
-  remove(String key) async {
-    final prefs = await SharedPreferences.getInstance();
-    prefs.remove(key);
+  Future<WeatherInfoForecast?> _getWeatherInfo() async {
+    // var weather = sharedPref.read("weather");
+    // debugPrint(weather);
+    return saverLoader.load();
   }
 }
 
@@ -260,14 +246,34 @@ class WeatherInfoDayModel {
   }
 }
 
-class WeatherInfo {
-  late WeatherInfoMoment today;
-  late List<WeatherInfoDay> week = [];
-
-  WeatherInfo(WeatherInfoMoment thisDay, List<WeatherInfoDay> weekDays) {
-    today = thisDay;
-    week = weekDays;
-    JsonHelper helper = JsonHelper();
-    var jsonToday = helper.toJsonToday();
-  }
-}
+// class SharedPref {
+//   static late final SharedPreferences _prefs;
+//
+//   setup() async {
+//     _prefs = await SharedPreferences.getInstance();
+//   }
+//
+//   read(String key) async {
+//     return json.decode(_prefs.getString(key)!);
+//   }
+//
+//   save(String key, value) async {
+//     _prefs.setString(key, json.encode(value));
+//   }
+//
+//   remove(String key) async {
+//     _prefs.remove(key);
+//   }
+// }
+//
+// class WeatherInfo {
+//   late WeatherInfoMoment today;
+//   late List<WeatherInfoDay> week = [];
+//
+//   WeatherInfo(WeatherInfoMoment thisDay, List<WeatherInfoDay> weekDays) {
+//     today = thisDay;
+//     week = weekDays;
+//     JsonHelper helper = JsonHelper();
+//     // var jsonToday = helper.toMapCurrentWeather(today);
+//   }
+// }
