@@ -99,6 +99,26 @@ class S {
       args: [],
     );
   }
+
+  /// `Rain probability`
+  String get probability {
+    return Intl.message(
+      'Rain probability',
+      name: 'probability',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Wind`
+  String get wind {
+    return Intl.message(
+      'Wind',
+      name: 'wind',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

@@ -6,6 +6,8 @@ import 'package:intl/intl.dart';
 import 'package:weather/DetailsScreen.dart';
 import 'package:weather/HomeScreen.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'DataClasses.dart';
+import 'WeatherAPI.dart';
 import 'generated/l10n.dart';
 
 void main() {
@@ -39,6 +41,14 @@ class MyApp extends StatelessWidget {
         '/': (_) => const HomeScreen(),
         DetailsScreen.routeName : (_) => const DetailsScreen(),
       },
+
     );
   }
+}
+
+class Arguments{
+  late WeatherInfoDay day;
+  late String location;
+
+  Arguments(this.day, this.location);
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:weather/main.dart';
 
 import 'DataClasses.dart';
 
@@ -14,8 +15,10 @@ class DetailsScreen extends StatefulWidget {
 }
 
 class _DetailsScreenState extends State<DetailsScreen> {
-  late final WeatherInfoDay day = ModalRoute.of(context)!.settings.arguments as WeatherInfoDay;
+  late final Arguments args = ModalRoute.of(context)!.settings.arguments as Arguments;
 
+  late final WeatherInfoDay day = args.day;
+  late final String location = args.location;
   static final DateFormat monthDayFormatter = DateFormat.MMMd();
 
   bool animation = true;
@@ -52,22 +55,25 @@ class _DetailsScreenState extends State<DetailsScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text("Coimbra"),
-                  Text(monthDayFormatter.format(day.date)),
-                  _icon(),
-                  Text(day.weatherState.weatherState),
-                  Text(day.description),
+                  Text(location, style: const TextStyle(fontSize: 24)),
+                  Text(monthDayFormatter.format(day.date), style: const TextStyle(fontSize: 24)),
+                  _iconDay(),
+                  //Text(day.weatherState.weatherState, style: const TextStyle(fontSize: 20)),
+                  Text(day.description, style: const TextStyle(fontSize: 24)),
                 ],
               ),
             ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Max: ${day.tempMax}º"),
-                Text("Min: ${day.tempMin}º"),
-                Text("Probability: ${day.rainProb}º"),
-                Text("Wind: ${day.windSpeed}º"),
-              ],
+            Padding(
+              padding: const EdgeInsets.only(left: 40.0, top: 40.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("Max: ${day.tempMax}º", style: const TextStyle(fontSize: 22)),
+                  Text("Min: ${day.tempMin}º", style: const TextStyle(fontSize: 22)),
+                  Text("${Intl.message("",name: "probability")}: ${day.rainProb}%", style: const TextStyle(fontSize: 22)),
+                  Text("${Intl.message("",name: "wind")}: ${day.windSpeed} Km/h", style: const TextStyle(fontSize: 22)),
+                ],
+              ),
             ),
             Flexible(child: _hourList())
           ],
@@ -76,7 +82,13 @@ class _DetailsScreenState extends State<DetailsScreen> {
     );
   }
 
-  _icon() {
+  _textStyle(){
+    return const TextStyle(
+      fontSize: 20
+    );
+  }
+
+  _iconDay() {
     return Padding(
       padding: const EdgeInsets.all(2.0),
       child: AnimatedOpacity(
@@ -91,21 +103,40 @@ class _DetailsScreenState extends State<DetailsScreen> {
         ),
       ),
     );
+  }
 
+  _iconBlock(String icon) {
+    return Padding(
+      padding: const EdgeInsets.all(2.0),
+      child: AnimatedOpacity(
+        duration: const Duration(milliseconds: animationDurationMs),
+        opacity: animation ? 1 : 0,
+        curve: Curves.easeInOutQuart,
+        child: Image.network(
+          "https://openweathermap.org/img/wn/$icon@2x.png",
+          height: 80,
+          width: 80,
+          scale: 1,
+        ),
+      ),
+    );
   }
 
   _hourList(){
-    return Padding(
-      padding: const EdgeInsets.only(left: 50),
-      child: Scrollbar(
-        child: ListView.separated(
-          separatorBuilder: (_, __) => const Divider(),
-          scrollDirection: Axis.horizontal,
-          itemCount: day.blocks.length,
-          itemBuilder: (context, index) {
-            //var model = hourModel(day.blocks[index]);
-            return _animatedHourColumn(day.blocks[index]);
-          },
+    return Container(
+      width: 100,
+      child: Padding(
+        padding: const EdgeInsets.only(left: 10),
+        child: Scrollbar(
+          isAlwaysShown: true,
+          child: ListView.separated(
+            separatorBuilder: (_, __) => const VerticalDivider(),
+            scrollDirection: Axis.horizontal, // TODO this wont work
+            itemCount: day.blocks.length,
+            itemBuilder: (context, index) {
+              return _animatedHourColumn(day.blocks[index]);
+            },
+          ),
         ),
       ),
     );
@@ -119,18 +150,20 @@ class _DetailsScreenState extends State<DetailsScreen> {
       child: AnimatedPadding(
           duration: const Duration(milliseconds: animationDurationMs),
           padding: animation
-              ? const EdgeInsets.only(left: 20, right: 20)
-              : const EdgeInsets.only(left: 20, right: 20),
+              ? const EdgeInsets.only(left: 5, right: 5)
+              : const EdgeInsets.only(left: 5, right: 5),
           child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text("${block.date.hour}:${block.date.minute}"),
-                Text("${block.tempMax}º"),
-                //Image.network(block.icon),
-                Text(block.icon),
-                Text("${block.tempMin}º"),
-              ],
+            child: Padding(
+              padding: const EdgeInsets.all(4),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text("${block.date.hour}H"),
+                  Text("${block.tempMax}º"),
+                  _iconBlock(block.icon),
+                  Text("${Intl.message("",name: "wind")}: ${block.windSpeed} Km/h"),
+                ],
+              ),
             ),
           ),
       ),

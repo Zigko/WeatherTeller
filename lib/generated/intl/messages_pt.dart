@@ -30,6 +30,9 @@ class MessageLookup extends MessageLookupByLibrary {
             "gps bloqueado, não consegue obter permissões"),
         "gps_denied": MessageLookupByLibrary.simpleMessage(
             "Permissões para gps bloqueadas"),
-        "gps_disabled": MessageLookupByLibrary.simpleMessage("gps desativado")
+        "gps_disabled": MessageLookupByLibrary.simpleMessage("gps desativado"),
+        "probability":
+            MessageLookupByLibrary.simpleMessage("Probabilidade  de chuva"),
+        "wind": MessageLookupByLibrary.simpleMessage("Vento")
       };
 }

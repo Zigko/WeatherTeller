@@ -3,5 +3,7 @@
   "gps_denied": "Permissões para gps bloqueadas",
   "gps_blocked": "gps bloqueado, não consegue obter permissões",
   "city_not_found": "Cidade não encontrada",
-  "error_forecast": "Error a obter previsão do tempo"
+  "error_forecast": "Error a obter previsão do tempo",
+  "probability": "Probabilidade  de chuva",
+  "wind": "Vento"
 }

@@ -5,6 +5,7 @@ import 'package:weather/DetailsScreen.dart';
 import 'package:weather/WeatherAPI.dart';
 import 'package:weather/Location.dart';
 import 'package:weather/WeatherSaverLoader.dart';
+import 'package:weather/main.dart';
 
 import 'DataClasses.dart';
 
@@ -124,19 +125,28 @@ class _HomeScreenState extends State<HomeScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             if (forecast != null)
-              Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    _cloudIcon(),
-                    Text(forecast!.currentWeather.description),
-                    Text(
-                      "${forecast?.currentWeather.temp}",
-                      style: const TextStyle(
-                          fontSize: 80, fontWeight: FontWeight.w100),
-                    ),
-                    _location(),
-                  ],
+              GestureDetector(
+                onTap: (){
+                  Navigator.pushNamed(
+                      context,
+                      DetailsScreen.routeName,
+                      arguments: Arguments(forecast!.days[0],searchedLocation)
+                  );
+                },
+                child: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _cloudIcon(),
+                      Text(forecast!.currentWeather.description),
+                      Text(
+                        "${forecast?.currentWeather.temp}",
+                        style: const TextStyle(
+                            fontSize: 80, fontWeight: FontWeight.w100),
+                      ),
+                      _location(),
+                    ],
+                  ),
                 ),
               ),
             Flexible(
@@ -203,19 +213,23 @@ class _HomeScreenState extends State<HomeScreen> {
               ? const EdgeInsets.only(top: 5)
               : const EdgeInsets.only(top: 15),
           child: GestureDetector(
-            onTap: () {
-              Navigator.pushNamed(context, DetailsScreen.routeName,
-                  arguments: day);
-            },
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Text("${model.weekday}, ${model.monthDay}"),
-                Image.network(model.imgPath),
-                Text(model.temps),
-              ],
-            ),
-          )),
+              onTap: () {
+                Navigator.pushNamed(
+                  context,
+                  DetailsScreen.routeName,
+                  arguments: Arguments(day,searchedLocation)
+                );
+              },
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Text("${model.weekday}, ${model.monthDay}"),
+                  Image.network(model.imgPath),
+                  Text(model.temps),
+                ],
+              ),
+          )
+      ),
     );
   }
 
