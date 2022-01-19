@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'WeatherAPI.dart';
@@ -19,24 +21,25 @@ class JsonHelper {
     };
   }
 
-  static Map<String, String> toMapWeekDay
-      (WeatherInfoDay day) =>
-      {
-        'date': day.date.toString(),
-        'icon': day.icon.toString(),
-        'tempMax': day.tempMax.toString(),
-        'tempMin': day.tempMin.toString(),
-        'humidity': day.humidity.toString(),
-        'weatherState': day.weatherState.weatherState,
-        'description': day.description,
-        'windSpeed': day.windSpeed.toString(),
-        'rainProb': day.rainProb.toString(),
-// TODO , talvez, meter também os detalhes dos dias, se não mostramos um
-//  toast a dizer ai aiai, faz refresh se queres
-      };
+  static Map<String, String> toMapWeekDay(WeatherInfoDay day) {
+    var blockMaps = day.blocks.map((e) => toMapFromWeatherMoment(e)).toList();
+    var encodedBlocks = jsonEncode(blockMaps);
 
-  static WeatherInfoMoment fromMapToWeatherMoment
-      (Map<String, dynamic> map) {
+    return {
+      'date': day.date.toString(),
+      'icon': day.icon.toString(),
+      'tempMax': day.tempMax.toString(),
+      'tempMin': day.tempMin.toString(),
+      'humidity': day.humidity.toString(),
+      'weatherState': day.weatherState.weatherState,
+      'description': day.description,
+      'windSpeed': day.windSpeed.toString(),
+      'rainProb': day.rainProb.toString(),
+      'blocks': encodedBlocks,
+    };
+  }
+
+  static WeatherInfoMoment fromMapToWeatherMoment(Map<String, dynamic> map) {
     var weatherMoment = WeatherInfoMoment.empty();
     weatherMoment.temp = int.parse(map['temp']!);
     weatherMoment.tempMax = int.parse(map['tempMax']!);
@@ -51,8 +54,7 @@ class JsonHelper {
     return weatherMoment;
   }
 
-  static WeatherInfoDay fromMapToWeatherDay
-      (Map<String, dynamic> map) {
+  static WeatherInfoDay fromMapToWeatherDay(Map<String, dynamic> map) {
     var weatherMoment = WeatherInfoDay.empty();
     weatherMoment.tempMax = int.parse(map['tempMax']!);
     weatherMoment.tempMin = int.parse(map['tempMin']!);
@@ -63,36 +65,28 @@ class JsonHelper {
     weatherMoment.description = map['description']!;
     weatherMoment.date = DateTime.parse(map['date']!);
     weatherMoment.weatherState = WeatherState.states[map['weatherState']!];
+    var decodedBlocks = jsonDecode(map['blocks']);
+    var blocks = <WeatherInfoMoment>[];
+    for(var day in decodedBlocks){
+      blocks.add(fromMapToWeatherMoment(day));
+    }
+    weatherMoment.blocks = blocks;
     return weatherMoment;
   }
-
-  // static WeatherInfoMoment fromPrefsToWeatherMoment
-  //     (SharedPreferences prefs) {
-  //   var weatherMoment = WeatherInfoMoment.empty();
-  //   weatherMoment.temp = prefs.getInt('temp')!;
-  //   weatherMoment.tempMax = prefs.getInt('tempMax')!;
-  //   weatherMoment.tempMin = prefs.getInt('tempMin')!;
-  //   weatherMoment.humidity = prefs.getInt('humidity')!;
-  //   weatherMoment.windSpeed = prefs.getInt('windSpeed')!;
-  //   weatherMoment.rainProb = prefs.getInt('rainProb')!;
-  //   weatherMoment.icon = prefs.getString('icon')!;
-  //   weatherMoment.description = prefs.getString('description')!;
-  //   weatherMoment.date = DateTime.parse(prefs.getString('date')!);
-  //   weatherMoment.weatherState =
-  //   WeatherState.states[prefs.getString('weatherState')!];
-  //   return weatherMoment;
-  // }
 }
-
-class Tag {
-  String name;
-  int quantity;
-
-  Tag(this.name, this.quantity);
-
-  Map toJson() =>
-      {
-        'name': name,
-        'quantity': quantity,
-      };
-}
+// static WeatherInfoMoment fromPrefsToWeatherMoment
+//     (SharedPreferences prefs) {
+//   var weatherMoment = WeatherInfoMoment.empty();
+//   weatherMoment.temp = prefs.getInt('temp')!;
+//   weatherMoment.tempMax = prefs.getInt('tempMax')!;
+//   weatherMoment.tempMin = prefs.getInt('tempMin')!;
+//   weatherMoment.humidity = prefs.getInt('humidity')!;
+//   weatherMoment.windSpeed = prefs.getInt('windSpeed')!;
+//   weatherMoment.rainProb = prefs.getInt('rainProb')!;
+//   weatherMoment.icon = prefs.getString('icon')!;
+//   weatherMoment.description = prefs.getString('description')!;
+//   weatherMoment.date = DateTime.parse(prefs.getString('date')!);
+//   weatherMoment.weatherState =
+//   WeatherState.states[prefs.getString('weatherState')!];
+//   return weatherMoment;
+// }
