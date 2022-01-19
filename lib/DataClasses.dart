@@ -1,19 +1,28 @@
 import 'dart:collection';
 
 import 'package:flutter/cupertino.dart';
+import 'package:location/location.dart';
 
 class WeatherInfoForecast {
-  late final List<WeatherInfoDay> days;
-  late final WeatherInfoMoment currentWeather;
-  late final DateTime currentDay;
-  late final String location;
-  late final String language;
+  late List<WeatherInfoDay> days;
+  late WeatherInfoMoment currentWeather;
+  late DateTime currentDay;
+  late String location = "";
+  late String language;
+  LatLon? latLon;
 
   WeatherInfoForecast(this.days, this.currentWeather, this.currentDay,
       this.location, this.language);
 
   WeatherInfoForecast.empty();
 }
+
+class LatLon{
+  double lat;
+  double lon;
+  LatLon(this.lat, this.lon);
+}
+
 
 class WeatherState {
   late final int importance;

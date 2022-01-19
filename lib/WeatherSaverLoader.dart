@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:location/location.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:weather/JsonHelper.dart';
 
@@ -15,6 +16,10 @@ class WeatherSaverLoader {
     prefs.setString('currentWeather', currentWeatherJson);
     prefs.setString('currentDay', forecast.currentDay.toIso8601String());
     prefs.setString('language', forecast.language);
+    if (forecast.latLon != null) {
+      prefs.setString(
+          'latLon', '${forecast.latLon!.lat},${forecast.latLon!.lon}');
+    }
     prefs.setString('location', forecast.location);
 
     var days = <Map<String, String>>[];
@@ -37,6 +42,13 @@ class WeatherSaverLoader {
         JsonHelper.fromMapToWeatherMoment(currentWeatherMap);
     forecast.currentDay = DateTime.parse(prefs.getString('currentDay')!);
     forecast.language = prefs.getString('language')!;
+
+    var latLon = prefs.getString('latLon');
+    if (latLon != null) {
+      var split = latLon.split(',');
+      forecast.latLon = LatLon(double.parse(split[0]), double.parse(split[1]));
+    }
+
     forecast.location = prefs.getString('location')!;
     var daysJsonList = prefs.getStringList('days') as List<String>;
     var days = <WeatherInfoDay>[];

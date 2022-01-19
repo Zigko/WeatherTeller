@@ -32,10 +32,11 @@ class OpenWeatherAPI {
   //api.openweathermap.org/data/2.5/weather? ......
   static final DateFormat dateTimeFormat = DateFormat("yyyy-MM-dd");
 
-  Future<WeatherInfoForecast> getForecastPosAsync(LocationData position) async {
-    var lat = position.latitude, lon = position.longitude;
+  Future<WeatherInfoForecast> getForecastPosAsync(LatLon position) async {
+    var lat = position.lat, lon = position.lon;
+    var latLon = LatLon(lat, lon);
     var options = _makeOptions(lat: lat, lon: lon);
-    return _getForecastAsync("Lat: $lat,Lon: $lon", options);
+    return _getForecastAsync("Lat: $lat,Lon: $lon", options, latLon: latLon);
   }
 
   Future<WeatherInfoForecast> getForecastPlaceAsync(String place) async {
@@ -44,7 +45,8 @@ class OpenWeatherAPI {
   }
 
   Future<WeatherInfoForecast> _getForecastAsync(
-      String placeName, String options) async {
+      String placeName, String options,
+      {LatLon? latLon}) async {
     var currentWeatherTask = _getDayDetailsAsync(options);
 
     var uri = Uri.parse(forecastURI + options + remainingQuery);
@@ -81,8 +83,12 @@ class OpenWeatherAPI {
 
     var currentWeather = await currentWeatherTask;
 
-    return WeatherInfoForecast(
+    var forecast = WeatherInfoForecast(
         list, currentWeather, DateTime.now(), placeName, lang);
+    if (latLon != null) {
+      forecast.latLon = latLon;
+    }
+    return forecast;
   }
 
   String _makeOptions({String? place, double? lat, double? lon}) {
