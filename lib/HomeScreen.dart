@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
+import 'package:weather/DetailsScreen.dart';
 import 'package:weather/WeatherAPI.dart';
 import 'package:weather/Location.dart';
 import 'package:weather/WeatherSaverLoader.dart';
@@ -16,7 +17,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final OpenWeatherAPI weatherAPI =
-      OpenWeatherAPI(Intl.getCurrentLocale().substring(0, 2));
+  OpenWeatherAPI(Intl.getCurrentLocale().substring(0, 2));
   static final DateFormat monthDayFormatter = DateFormat.MMMMd();
 
   final WeatherSaverLoader saverLoader = WeatherSaverLoader();
@@ -62,7 +63,8 @@ class _HomeScreenState extends State<HomeScreen> {
       weatherAPI
           .getForecastPosAsync(position)
           .then((value) => _updateWeatherScreen(value))
-          .catchError((error) => Fluttertoast.showToast(
+          .catchError((error) =>
+          Fluttertoast.showToast(
               msg: error, toastLength: Toast.LENGTH_LONG));
     }).catchError((error) {
       Fluttertoast.showToast(msg: error, toastLength: Toast.LENGTH_LONG);
@@ -89,12 +91,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         title:
-            typing ? _searchText() : const Center(child: Text("WeatherTeller")),
-        actions: [
-          IconButton(
-              onPressed: () => _weatherHere(),
-              icon: const Icon(Icons.add_location))
-        ],
+        typing ? _searchText() : const Center(child: Text("WeatherTeller")),
         leading: IconButton(
           icon: Icon(typing ? Icons.done : Icons.search),
           onPressed: () {
@@ -109,6 +106,11 @@ class _HomeScreenState extends State<HomeScreen> {
             });
           },
         ),
+        actions: [
+          IconButton(
+              onPressed: () => _weatherHere(),
+              icon: const Icon(Icons.add_location))
+        ],
       ),
       body: Container(
         decoration: BoxDecoration(
@@ -185,31 +187,40 @@ class _HomeScreenState extends State<HomeScreen> {
           itemCount: forecast!.days.length,
           itemBuilder: (context, index) {
             var model = WeatherInfoDayModel(forecast!.days[index]);
-            return _animatedWeatherLine(model);
+            return _animatedWeatherLine(model, forecast!.days[index]);
           },
         ),
       ),
     );
   }
 
-  _animatedWeatherLine(WeatherInfoDayModel model) {
+  _animatedWeatherLine(WeatherInfoDayModel model, WeatherInfoDay day) {
     return AnimatedOpacity(
       duration: const Duration(milliseconds: animationDurationMs),
       opacity: animation ? 1 : 0,
       curve: Curves.easeInOutQuart,
       child: AnimatedPadding(
-        duration: const Duration(milliseconds: animationDurationMs),
-        padding: animation
-            ? const EdgeInsets.only(top: 5)
-            : const EdgeInsets.only(top: 15),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            Text("${model.weekday}, ${model.monthDay}"),
-            Image.network(model.imgPath),
-            Text(model.temps),
-          ],
-        ),
+          duration: const Duration(milliseconds: animationDurationMs),
+          padding: animation
+              ? const EdgeInsets.only(top: 5)
+              : const EdgeInsets.only(top: 15),
+          child: GestureDetector(
+              onTap: () {
+                Navigator.pushNamed(
+                  context,
+                  DetailsScreen.routeName,
+                  arguments: day
+                );
+              },
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Text("${model.weekday}, ${model.monthDay}"),
+                  Image.network(model.imgPath),
+                  Text(model.temps),
+                ],
+              ),
+          )
       ),
     );
   }
@@ -241,7 +252,8 @@ class _HomeScreenState extends State<HomeScreen> {
         opacity: animation ? 1 : 0,
         curve: Curves.easeInOutQuart,
         child: Image.network(
-          "https://openweathermap.org/img/wn/${forecast!.currentWeather.icon}@4x.png",
+          "https://openweathermap.org/img/wn/${forecast!.currentWeather
+              .icon}@4x.png",
           height: 160,
           width: 160,
           scale: 1,
