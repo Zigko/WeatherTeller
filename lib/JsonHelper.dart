@@ -1,8 +1,6 @@
 import 'dart:convert';
 
-import 'package:shared_preferences/shared_preferences.dart';
-
-import 'WeatherAPI.dart';
+import 'DataClasses.dart';
 
 class JsonHelper {
   static Map<String, String> toMapFromWeatherMoment(

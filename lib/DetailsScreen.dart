@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import 'WeatherAPI.dart';
+import 'DataClasses.dart';
+
 
 class DetailsScreen extends StatefulWidget {
   static const routeName = '/details';

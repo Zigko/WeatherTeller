@@ -6,6 +6,8 @@ import 'package:weather/WeatherAPI.dart';
 import 'package:weather/Location.dart';
 import 'package:weather/WeatherSaverLoader.dart';
 
+import 'DataClasses.dart';
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
 
@@ -17,7 +19,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final OpenWeatherAPI weatherAPI =
-  OpenWeatherAPI(Intl.getCurrentLocale().substring(0, 2));
+      OpenWeatherAPI(Intl.getCurrentLocale().substring(0, 2));
   static final DateFormat monthDayFormatter = DateFormat.MMMMd();
 
   final WeatherSaverLoader saverLoader = WeatherSaverLoader();
@@ -32,8 +34,6 @@ class _HomeScreenState extends State<HomeScreen> {
   final myController = TextEditingController();
   bool typing = false;
 
-  // Navigator.pushNamed(context, '/details')
-
   @override
   void initState() {
     super.initState();
@@ -42,7 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   _loadFromDisk() {
-    _getWeatherInfo().then((value) {
+    saverLoader.load().then((value) {
       if (value != null) {
         _updateWeatherScreen(value);
       }
@@ -63,8 +63,7 @@ class _HomeScreenState extends State<HomeScreen> {
       weatherAPI
           .getForecastPosAsync(position)
           .then((value) => _updateWeatherScreen(value))
-          .catchError((error) =>
-          Fluttertoast.showToast(
+          .catchError((error) => Fluttertoast.showToast(
               msg: error, toastLength: Toast.LENGTH_LONG));
     }).catchError((error) {
       Fluttertoast.showToast(msg: error, toastLength: Toast.LENGTH_LONG);
@@ -76,7 +75,7 @@ class _HomeScreenState extends State<HomeScreen> {
   _updateWeatherScreen(WeatherInfoForecast weatherInfoForecast) {
     animation = false;
     forecast = weatherInfoForecast;
-    _saveWeatherInfo(weatherInfoForecast);
+    saverLoader.save(weatherInfoForecast);
 
     setState(() {});
     Future.delayed(const Duration(milliseconds: animationDurationMs), () {
@@ -91,7 +90,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         title:
-        typing ? _searchText() : const Center(child: Text("WeatherTeller")),
+            typing ? _searchText() : const Center(child: Text("WeatherTeller")),
         leading: IconButton(
           icon: Icon(typing ? Icons.done : Icons.search),
           onPressed: () {
@@ -150,9 +149,7 @@ class _HomeScreenState extends State<HomeScreen> {
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           FloatingActionButton(
-            onPressed: () {
-              _refresh();
-            },
+            onPressed: () => _refresh(),
             child: const Icon(Icons.refresh),
           )
         ],
@@ -184,10 +181,11 @@ class _HomeScreenState extends State<HomeScreen> {
         child: ListView.separated(
           separatorBuilder: (_, __) => const Divider(),
           scrollDirection: Axis.vertical,
-          itemCount: forecast!.days.length,
+          itemCount: forecast!.days.length - 1,
+          // para saltar o proprio dia da lista
           itemBuilder: (context, index) {
-            var model = WeatherInfoDayModel(forecast!.days[index]);
-            return _animatedWeatherLine(model, forecast!.days[index]);
+            var model = WeatherInfoDayModel(forecast!.days[index + 1]);
+            return _animatedWeatherLine(model, forecast!.days[index + 1]);
           },
         ),
       ),
@@ -205,23 +203,19 @@ class _HomeScreenState extends State<HomeScreen> {
               ? const EdgeInsets.only(top: 5)
               : const EdgeInsets.only(top: 15),
           child: GestureDetector(
-              onTap: () {
-                Navigator.pushNamed(
-                  context,
-                  DetailsScreen.routeName,
-                  arguments: day
-                );
-              },
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Text("${model.weekday}, ${model.monthDay}"),
-                  Image.network(model.imgPath),
-                  Text(model.temps),
-                ],
-              ),
-          )
-      ),
+            onTap: () {
+              Navigator.pushNamed(context, DetailsScreen.routeName,
+                  arguments: day);
+            },
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Text("${model.weekday}, ${model.monthDay}"),
+                Image.network(model.imgPath),
+                Text(model.temps),
+              ],
+            ),
+          )),
     );
   }
 
@@ -252,28 +246,13 @@ class _HomeScreenState extends State<HomeScreen> {
         opacity: animation ? 1 : 0,
         curve: Curves.easeInOutQuart,
         child: Image.network(
-          "https://openweathermap.org/img/wn/${forecast!.currentWeather
-              .icon}@4x.png",
+          "https://openweathermap.org/img/wn/${forecast!.currentWeather.icon}@4x.png",
           height: 160,
           width: 160,
           scale: 1,
         ),
       ),
     );
-  }
-
-  _saveWeatherInfo(WeatherInfoForecast toSave) async {
-    // var thisDay = forecast!.currentWeather;
-    // var weekDays = forecast!.days;
-    // var weather = WeatherInfo(thisDay, weekDays);
-    //sharedPref.save("weather", weather);
-    saverLoader.save(toSave);
-  }
-
-  Future<WeatherInfoForecast?> _getWeatherInfo() async {
-    // var weather = sharedPref.read("weather");
-    // debugPrint(weather);
-    return saverLoader.load();
   }
 }
 

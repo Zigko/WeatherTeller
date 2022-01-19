@@ -2,7 +2,8 @@ import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:weather/JsonHelper.dart';
-import 'package:weather/WeatherAPI.dart';
+
+import 'DataClasses.dart';
 
 class WeatherSaverLoader {
   save(WeatherInfoForecast forecast) async {
