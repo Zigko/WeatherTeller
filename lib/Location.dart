@@ -1,7 +1,8 @@
 import 'package:location/location.dart';
 import 'package:intl/intl.dart';
+import 'package:weather/DataClasses.dart';
 
-Future<LocationData> determinePosition() async {
+Future<LatLon> determinePosition() async {
   var location = Location();
 
   var serviceEnabled = await location.serviceEnabled();
@@ -21,5 +22,6 @@ Future<LocationData> determinePosition() async {
     return Future.error(Intl.message('', name: 'gps_blocked'));
   }
 
-  return await location.getLocation();
+  var data = await location.getLocation();
+  return LatLon(data.latitude!, data.longitude!);
 }

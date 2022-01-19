@@ -49,13 +49,25 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  _refresh() {
-    weatherAPI
-        .getForecastPlaceAsync(searchedLocation)
-        .then((value) => _updateWeatherScreen(value))
-        .catchError((error) {
-      Fluttertoast.showToast(msg: error, toastLength: Toast.LENGTH_LONG);
-    });
+  _refresh(WeatherInfoForecast? forecast, {String? searchedLocation}) {
+    if (forecast == null) {
+      weatherAPI
+          .getForecastPlaceAsync(searchedLocation!)
+          .then((value) => _updateWeatherScreen(value))
+          .catchError((error) {
+        Fluttertoast.showToast(msg: error, toastLength: Toast.LENGTH_LONG);
+      });
+    } else {
+      Future<WeatherInfoForecast> task;
+      if (forecast.latLon == null) {
+        task = weatherAPI.getForecastPlaceAsync(forecast.location);
+      } else {
+        task = weatherAPI.getForecastPosAsync(forecast.latLon!);
+      }
+      task.then((value) => _updateWeatherScreen(value)).catchError((error) {
+        Fluttertoast.showToast(msg: error, toastLength: Toast.LENGTH_LONG);
+      });
+    }
   }
 
   _weatherHere() {
@@ -94,14 +106,15 @@ class _HomeScreenState extends State<HomeScreen> {
         leading: IconButton(
           icon: Icon(typing ? Icons.done : Icons.search),
           onPressed: () {
-            //TODO correr isto quando se clica no enter
+            if (typing) {
+              var text = myController.text;
+              if (text.isNotEmpty) {
+                searchedLocation = text.trim();
+                _refresh(null, searchedLocation: searchedLocation);
+              }
+            }
             setState(() {
               typing = !typing;
-              var text = myController.text;
-              if (text.isNotEmpty && text != searchedLocation) {
-                searchedLocation = text;
-                _refresh();
-              }
             });
           },
         ),
@@ -149,7 +162,7 @@ class _HomeScreenState extends State<HomeScreen> {
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           FloatingActionButton(
-            onPressed: () => _refresh(),
+            onPressed: () => _refresh(forecast),
             child: const Icon(Icons.refresh),
           )
         ],
