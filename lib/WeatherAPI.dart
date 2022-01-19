@@ -1,6 +1,9 @@
 import 'dart:collection';
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/cupertino.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:http/http.dart';
 import 'package:location/location.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
@@ -50,38 +53,51 @@ class OpenWeatherAPI {
     var currentWeatherTask = _getDayDetailsAsync(options);
 
     var uri = Uri.parse(forecastURI + options + remainingQuery);
-    var response = await http.get(uri);
 
-    if (response.statusCode != 200) {
-      if (response.statusCode == 404) {
+    Response? response;
+    try {
+      response = await http.get(uri);
+    } on Exception catch (_) {
+      Future.error(Intl.message('', name: 'connection_interrupted'));
+    }
+
+    if (response?.statusCode != 200) {
+      if (response?.statusCode == 404) {
         return Future.error(Intl.message('', name: 'city_not_found'));
       }
       return Future.error(Intl.message('', name: 'error_forecast'));
     }
 
-    var decodedResponse = jsonDecode(utf8.decode(response.bodyBytes)) as Map;
+    var decodedResponse = jsonDecode(utf8.decode(response!.bodyBytes)) as Map;
     var list = <WeatherInfoDay>[];
-    var currentDay = <WeatherInfoMoment>[];
-    var currentDate = DateTime.now();
+    var dayBlocks = <WeatherInfoMoment>[];
+    var currentDayTime = DateTime.now().day;
+
+    var currentWeather = await currentWeatherTask;
 
     for (var jsonObj in decodedResponse["list"]) {
       var dt = jsonObj["dt_txt"] as String;
       dt = dt.split(" ")[0];
       var date = dateTimeFormat.parse(dt);
 
-      if (date.compareTo(currentDate) > 0) {
-        if (currentDay.isNotEmpty) {
-          list.add(WeatherInfoDay(currentDay));
+      if (date.day != currentDayTime && list.isEmpty) {
+        dayBlocks.add(currentWeather);
+        list.add(WeatherInfoDay(dayBlocks));
+        dayBlocks = <WeatherInfoMoment>[];
+        currentDayTime = date.day;
+        continue;
+      }
+      if (date.day != currentDayTime) {
+        if (dayBlocks.isNotEmpty) {
+          list.add(WeatherInfoDay(dayBlocks));
         }
-        currentDay = <WeatherInfoMoment>[];
-        currentDay.add(WeatherInfoMoment.fromJson(jsonObj));
-        currentDate = date;
+        dayBlocks = <WeatherInfoMoment>[];
+        dayBlocks.add(WeatherInfoMoment.fromJson(jsonObj));
+        currentDayTime = date.day;
       } else {
-        currentDay.add(WeatherInfoMoment.fromJson(jsonObj));
+        dayBlocks.add(WeatherInfoMoment.fromJson(jsonObj));
       }
     }
-
-    var currentWeather = await currentWeatherTask;
 
     var forecast = WeatherInfoForecast(
         list, currentWeather, DateTime.now(), placeName, lang);
@@ -105,17 +121,22 @@ class OpenWeatherAPI {
 
   Future<WeatherInfoMoment> _getDayDetailsAsync(String options) async {
     var uri = Uri.parse(weatherURI + options + remainingQuery);
-    var response = await http.get(uri);
+    Response? response;
+    try {
+      response = await http.get(uri);
+    } on Exception catch (error) {
+      Future.error(error);
+    }
 
-    if (response.statusCode != 200) {
-      if (response.statusCode == 404) {
+    if (response?.statusCode != 200) {
+      if (response?.statusCode == 404) {
         return Future.error(Intl.message('', name: 'city_not_found'));
       }
       return Future.error(Intl.message('', name: 'error_forecast'));
     }
 
     var root =
-        jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
+        jsonDecode(utf8.decode(response!.bodyBytes)) as Map<String, dynamic>;
     var main = root["main"];
     var temp = main["temp"].toInt();
     var tempMax = main["temp_max"].toInt();

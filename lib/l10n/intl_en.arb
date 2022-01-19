@@ -5,5 +5,6 @@
     "city_not_found": "City not found",
     "error_forecast": "Error getting forecast",
     "probability": "Rain probability",
-    "wind" : "Wind"
+    "wind" : "Wind",
+    "connection_interrupted" : "Connection interrupted"
 }

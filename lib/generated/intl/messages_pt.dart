@@ -24,6 +24,8 @@ class MessageLookup extends MessageLookupByLibrary {
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
         "city_not_found":
             MessageLookupByLibrary.simpleMessage("Cidade não encontrada"),
+        "connection_interrupted":
+            MessageLookupByLibrary.simpleMessage("Conexão interrompida"),
         "error_forecast": MessageLookupByLibrary.simpleMessage(
             "Error a obter previsão do tempo"),
         "gps_blocked": MessageLookupByLibrary.simpleMessage(

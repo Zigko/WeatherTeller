@@ -119,6 +119,16 @@ class S {
       args: [],
     );
   }
+
+  /// `Connection interrupted`
+  String get connection_interrupted {
+    return Intl.message(
+      'Connection interrupted',
+      name: 'connection_interrupted',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {
