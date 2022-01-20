@@ -137,6 +137,7 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             if (forecast != null)
               GestureDetector(
+                behavior: HitTestBehavior.opaque,
                 onTap: () {
                   Navigator.pushNamed(context, DetailsScreen.routeName,
                       arguments:
@@ -149,7 +150,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       _cloudIcon(),
                       Text(forecast!.currentWeather.description),
                       Text(
-                        "${forecast?.currentWeather.temp}",
+                        "${forecast?.currentWeather.temp}º",
                         style: const TextStyle(
                             fontSize: 80, fontWeight: FontWeight.w100),
                       ),
@@ -222,6 +223,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ? const EdgeInsets.only(top: 5)
               : const EdgeInsets.only(top: 15),
           child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
             onTap: () {
               Navigator.pushNamed(context, DetailsScreen.routeName,
                   arguments: Arguments(day, searchedLocation));
