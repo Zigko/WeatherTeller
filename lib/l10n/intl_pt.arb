@@ -7,5 +7,6 @@
   "probability": "Probabilidade  de chuva",
   "wind": "Vento",
   "connection_interrupted": "Conexão interrompida",
-  "humidity" : "Humidade"
+  "humidity" : "Humidade",
+  "last_update" : "Ultima atualização"
 }

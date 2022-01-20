@@ -34,6 +34,8 @@ class MessageLookup extends MessageLookupByLibrary {
             "Permissões para gps bloqueadas"),
         "gps_disabled": MessageLookupByLibrary.simpleMessage("gps desativado"),
         "humidity": MessageLookupByLibrary.simpleMessage("Humidade"),
+        "last_update":
+            MessageLookupByLibrary.simpleMessage("Ultima atualização"),
         "probability":
             MessageLookupByLibrary.simpleMessage("Probabilidade  de chuva"),
         "wind": MessageLookupByLibrary.simpleMessage("Vento")

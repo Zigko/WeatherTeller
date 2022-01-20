@@ -35,6 +35,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "gps_disabled": MessageLookupByLibrary.simpleMessage(
             "Location services are disabled"),
         "humidity": MessageLookupByLibrary.simpleMessage("Humidity"),
+        "last_update": MessageLookupByLibrary.simpleMessage("Last update"),
         "probability": MessageLookupByLibrary.simpleMessage("Rain probability"),
         "wind": MessageLookupByLibrary.simpleMessage("Wind")
       };

@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:weather/main.dart';
@@ -31,7 +32,17 @@ class _DetailsScreenState extends State<DetailsScreen> {
   TextStyle style24 = const TextStyle(fontSize: 24);
 
   int index = 0;
-
+  late WeatherInfoMoment thisDay = WeatherInfoMoment(
+      day.date,
+      0,
+      day.tempMax,
+      day.tempMin,
+      day.humidity,
+      day.weatherState,
+      day.description,
+      day.icon,
+      day.windSpeed,
+      day.rainProb);
   late WeatherInfoMoment moment = WeatherInfoMoment(
       day.date,
       0,
@@ -67,15 +78,24 @@ class _DetailsScreenState extends State<DetailsScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(location, style: style24),
-                  Text(monthDayFormatter.format(moment.date), style: style24),
-                  _iconDay(),
-                  Text(moment.description, style: style24),
-                ],
+            GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: (){
+                moment = thisDay;
+                setState(() {
+
+                });
+              },
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(location, style: style24),
+                    Text(monthDayFormatter.format(moment.date), style: style24),
+                    _iconDay(),
+                    Text(moment.description, style: style24),
+                  ],
+                ),
               ),
             ),
             Padding(
@@ -101,22 +121,6 @@ class _DetailsScreenState extends State<DetailsScreen> {
           ],
         ),
       ),
-    );
-  }
-
-  _infoWeather(int index) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text("Max: ${day.blocks[index].tempMax}º", style: style20),
-        Text("Min: ${day.blocks[index].tempMin}º", style: style20),
-        Text(
-            "${Intl.message("", name: "probability")}: ${day.blocks[index].rainProb}%",
-            style: style20),
-        Text(
-            "${Intl.message("", name: "wind")}: ${day.blocks[index].windSpeed} Km/h",
-            style: style20),
-      ],
     );
   }
 

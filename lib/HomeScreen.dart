@@ -22,6 +22,8 @@ class _HomeScreenState extends State<HomeScreen> {
   final OpenWeatherAPI weatherAPI =
       OpenWeatherAPI(Intl.getCurrentLocale().substring(0, 2));
   static final DateFormat monthDayFormatter = DateFormat.MMMMd();
+  static final DateFormat dayFormatter = DateFormat.yMMMMd();
+  static final DateFormat timeFormatter = DateFormat.Hms();
 
   final WeatherSaverLoader saverLoader = WeatherSaverLoader();
 
@@ -131,37 +133,56 @@ class _HomeScreenState extends State<HomeScreen> {
             end: Alignment.bottomCenter,
           ),
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+        child: Stack(
           children: [
-            if (forecast != null)
-              GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: () {
-                  Navigator.pushNamed(context, DetailsScreen.routeName,
-                      arguments:
-                          Arguments(forecast!.days[0], searchedLocation));
-                },
-                child: Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      _cloudIcon(),
-                      Text(forecast!.currentWeather.description),
-                      Text(
-                        "${forecast?.currentWeather.temp}º",
-                        style: const TextStyle(
-                            fontSize: 80, fontWeight: FontWeight.w100),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (forecast != null)
+                  GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () {
+                      Navigator.pushNamed(context, DetailsScreen.routeName,
+                          arguments:
+                              Arguments(forecast!.days[0], searchedLocation));
+                    },
+                    child: Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _cloudIcon(),
+                          Text(forecast!.currentWeather.description),
+                          Text(
+                            "${forecast?.currentWeather.temp}º",
+                            style: const TextStyle(
+                                fontSize: 80, fontWeight: FontWeight.w100),
+                          ),
+                          _location(),
+                        ],
                       ),
-                      _location(),
+                    ),
+                  ),
+                Flexible(
+                  child: _weekList(),
+                ),
+              ],
+            ),
+            if (forecast != null)
+              Positioned(
+                left: 0,
+                bottom: 0,
+                child: Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text("${Intl.message("", name: "last_update")}:"),
+                      Text("${dayFormatter.format(forecast!.currentDay)} ${timeFormatter.format(forecast!.currentDay)}")
                     ],
                   ),
                 ),
               ),
-            Flexible(
-              child: _weekList(),
-            ),
           ],
         ),
       ),
