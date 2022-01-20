@@ -6,5 +6,6 @@
   "error_forecast": "Error a obter previsão do tempo",
   "probability": "Probabilidade  de chuva",
   "wind": "Vento",
-  "connection_interrupted": "Conexão interrompida"
+  "connection_interrupted": "Conexão interrompida",
+  "humidity" : "Humidade"
 }

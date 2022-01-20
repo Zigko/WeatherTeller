@@ -129,6 +129,16 @@ class S {
       args: [],
     );
   }
+
+  /// `Humidity`
+  String get humidity {
+    return Intl.message(
+      'Humidity',
+      name: 'humidity',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

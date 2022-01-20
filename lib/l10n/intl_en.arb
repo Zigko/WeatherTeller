@@ -6,5 +6,6 @@
     "error_forecast": "Error getting forecast",
     "probability": "Rain probability",
     "wind" : "Wind",
-    "connection_interrupted" : "Connection interrupted"
+    "connection_interrupted" : "Connection interrupted",
+    "humidity" : "Humidity"
 }

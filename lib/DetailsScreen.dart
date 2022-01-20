@@ -4,7 +4,6 @@ import 'package:weather/main.dart';
 
 import 'DataClasses.dart';
 
-
 class DetailsScreen extends StatefulWidget {
   static const routeName = '/details';
 
@@ -15,7 +14,8 @@ class DetailsScreen extends StatefulWidget {
 }
 
 class _DetailsScreenState extends State<DetailsScreen> {
-  late final Arguments args = ModalRoute.of(context)!.settings.arguments as Arguments;
+  late final Arguments args =
+      ModalRoute.of(context)!.settings.arguments as Arguments;
 
   late final WeatherInfoDay day = args.day;
   late final String location = args.location;
@@ -23,18 +23,34 @@ class _DetailsScreenState extends State<DetailsScreen> {
 
   bool animation = true;
 
-  static const int animationDurationMs = 500;
+  static const int animationDurationMs = 1000;
+
+  ScrollController controller = ScrollController();
+
+  TextStyle style20 = const TextStyle(fontSize: 18);
+  TextStyle style24 = const TextStyle(fontSize: 24);
+
+  int index = 0;
+
+  late WeatherInfoMoment moment = WeatherInfoMoment(
+      day.date,
+      0,
+      day.tempMax,
+      day.tempMin,
+      day.humidity,
+      day.weatherState,
+      day.description,
+      day.icon,
+      day.windSpeed,
+      day.rainProb);
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-
   }
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
         title: const Center(child: Text("WeatherTeller")),
@@ -48,18 +64,17 @@ class _DetailsScreenState extends State<DetailsScreen> {
           ),
         ),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(location, style: const TextStyle(fontSize: 24)),
-                  Text(monthDayFormatter.format(day.date), style: const TextStyle(fontSize: 24)),
+                  Text(location, style: style24),
+                  Text(monthDayFormatter.format(moment.date), style: style24),
                   _iconDay(),
-                  //Text(day.weatherState.weatherState, style: const TextStyle(fontSize: 20)),
-                  Text(day.description, style: const TextStyle(fontSize: 24)),
+                  Text(moment.description, style: style24),
                 ],
               ),
             ),
@@ -68,23 +83,40 @@ class _DetailsScreenState extends State<DetailsScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("Max: ${day.tempMax}º", style: const TextStyle(fontSize: 22)),
-                  Text("Min: ${day.tempMin}º", style: const TextStyle(fontSize: 22)),
-                  Text("${Intl.message("",name: "probability")}: ${day.rainProb}%", style: const TextStyle(fontSize: 22)),
-                  Text("${Intl.message("",name: "wind")}: ${day.windSpeed} Km/h", style: const TextStyle(fontSize: 22)),
+                  Text("Max: ${moment.tempMax}º", style: style20),
+                  Text("Min: ${moment.tempMin}º", style: style20),
+                  Text(
+                      "${Intl.message("", name: "probability")}: ${moment.rainProb}%",
+                      style: style20),
+                  Text(
+                      "${Intl.message("", name: "wind")}: ${moment.windSpeed} Km/h",
+                      style: style20),
+                  Text(
+                      "${Intl.message("", name: "humidity")}: ${moment.humidity}%",
+                      style: style20),
                 ],
               ),
             ),
-            Flexible(child: _hourList())
+            SizedBox(height: 180, child: _hourList())
           ],
         ),
       ),
     );
   }
 
-  _textStyle(){
-    return const TextStyle(
-      fontSize: 20
+  _infoWeather(int index) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text("Max: ${day.blocks[index].tempMax}º", style: style20),
+        Text("Min: ${day.blocks[index].tempMin}º", style: style20),
+        Text(
+            "${Intl.message("", name: "probability")}: ${day.blocks[index].rainProb}%",
+            style: style20),
+        Text(
+            "${Intl.message("", name: "wind")}: ${day.blocks[index].windSpeed} Km/h",
+            style: style20),
+      ],
     );
   }
 
@@ -96,9 +128,9 @@ class _DetailsScreenState extends State<DetailsScreen> {
         opacity: animation ? 1 : 0,
         curve: Curves.easeInOutQuart,
         child: Image.network(
-          "https://openweathermap.org/img/wn/${day.icon}@4x.png",
-          height: 160,
-          width: 160,
+          "https://openweathermap.org/img/wn/${moment.icon}@4x.png",
+          height: 130,
+          width: 130,
           scale: 1,
         ),
       ),
@@ -106,40 +138,31 @@ class _DetailsScreenState extends State<DetailsScreen> {
   }
 
   _iconBlock(String icon) {
-    return Padding(
-      padding: const EdgeInsets.all(2.0),
-      child: AnimatedOpacity(
-        duration: const Duration(milliseconds: animationDurationMs),
-        opacity: animation ? 1 : 0,
-        curve: Curves.easeInOutQuart,
-        child: Image.network(
-          "https://openweathermap.org/img/wn/$icon@2x.png",
-          height: 80,
-          width: 80,
-          scale: 1,
-        ),
-      ),
+    return Image.network(
+      "https://openweathermap.org/img/wn/$icon@2x.png",
+      height: 80,
+      width: 80,
+      scale: 1,
     );
   }
 
-  _hourList(){
-    return Container(
-      width: 100,
-      child: Padding(
-        padding: const EdgeInsets.only(left: 10),
+  _hourList() {
+    return Padding(
+        padding: const EdgeInsets.all(10.0),
         child: Scrollbar(
-          isAlwaysShown: true,
+          controller: controller,
           child: ListView.separated(
+            shrinkWrap: true,
             separatorBuilder: (_, __) => const VerticalDivider(),
-            scrollDirection: Axis.horizontal, // TODO this wont work
+            controller: controller,
+            scrollDirection: Axis.horizontal,
+            // TODO this wont work
             itemCount: day.blocks.length,
             itemBuilder: (context, index) {
               return _animatedHourColumn(day.blocks[index]);
             },
           ),
-        ),
-      ),
-    );
+        ));
   }
 
   _animatedHourColumn(WeatherInfoMoment block) {
@@ -148,26 +171,33 @@ class _DetailsScreenState extends State<DetailsScreen> {
       opacity: animation ? 1 : 0,
       curve: Curves.easeInOutQuart,
       child: AnimatedPadding(
-          duration: const Duration(milliseconds: animationDurationMs),
-          padding: animation
-              ? const EdgeInsets.only(left: 5, right: 5)
-              : const EdgeInsets.only(left: 5, right: 5),
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(4),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text("${block.date.hour}H"),
-                  Text("${block.tempMax}º"),
-                  _iconBlock(block.icon),
-                  Text("${Intl.message("",name: "wind")}: ${block.windSpeed} Km/h"),
-                ],
+        duration: const Duration(milliseconds: animationDurationMs),
+        padding: animation
+            ? const EdgeInsets.only(top: 5)
+            : const EdgeInsets.only(top: 15),
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () {
+            moment = block;
+            setState(() {});
+          },
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text("${block.date.hour}H"),
+              Text("${block.tempMax}º"),
+              Image.network(
+                "https://openweathermap.org/img/wn/${block.icon}@2x.png",
+                height: 80,
+                width: 80,
+                scale: 1,
               ),
-            ),
+            ],
           ),
+        ),
       ),
     );
   }
-}
 
+}
