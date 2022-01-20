@@ -44,9 +44,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   _loadFromDisk() {
     saverLoader.load().then((value) {
-      if (value != null) {
-        _updateWeatherScreen(value);
-      }
+      _refresh(value, searchedLocation: searchedLocation);
     });
   }
 
@@ -139,12 +137,10 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             if (forecast != null)
               GestureDetector(
-                onTap: (){
-                  Navigator.pushNamed(
-                      context,
-                      DetailsScreen.routeName,
-                      arguments: Arguments(forecast!.days[0],searchedLocation)
-                  );
+                onTap: () {
+                  Navigator.pushNamed(context, DetailsScreen.routeName,
+                      arguments:
+                          Arguments(forecast!.days[0], searchedLocation));
                 },
                 child: Center(
                   child: Column(
@@ -226,23 +222,19 @@ class _HomeScreenState extends State<HomeScreen> {
               ? const EdgeInsets.only(top: 5)
               : const EdgeInsets.only(top: 15),
           child: GestureDetector(
-              onTap: () {
-                Navigator.pushNamed(
-                  context,
-                  DetailsScreen.routeName,
-                  arguments: Arguments(day,searchedLocation)
-                );
-              },
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Text("${model.weekday}, ${model.monthDay}"),
-                  Image.network(model.imgPath),
-                  Text(model.temps),
-                ],
-              ),
-          )
-      ),
+            onTap: () {
+              Navigator.pushNamed(context, DetailsScreen.routeName,
+                  arguments: Arguments(day, searchedLocation));
+            },
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Text("${model.weekday}, ${model.monthDay}"),
+                Image.network(model.imgPath),
+                Text(model.temps),
+              ],
+            ),
+          )),
     );
   }
 

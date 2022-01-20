@@ -80,19 +80,16 @@ class OpenWeatherAPI {
       dt = dt.split(" ")[0];
       var date = dateTimeFormat.parse(dt);
 
-      if (date.day != currentDayTime && list.isEmpty) {
-        dayBlocks.add(currentWeather);
-        list.add(WeatherInfoDay(dayBlocks));
-        dayBlocks = <WeatherInfoMoment>[];
-        currentDayTime = date.day;
-        continue;
-      }
       if (date.day != currentDayTime) {
         if (dayBlocks.isNotEmpty) {
           list.add(WeatherInfoDay(dayBlocks));
+          dayBlocks = <WeatherInfoMoment>[];
+          dayBlocks.add(WeatherInfoMoment.fromJson(jsonObj));
+        } else {
+          dayBlocks.add(currentWeather);
+          list.add(WeatherInfoDay(dayBlocks));
+          dayBlocks = <WeatherInfoMoment>[];
         }
-        dayBlocks = <WeatherInfoMoment>[];
-        dayBlocks.add(WeatherInfoMoment.fromJson(jsonObj));
         currentDayTime = date.day;
       } else {
         dayBlocks.add(WeatherInfoMoment.fromJson(jsonObj));
