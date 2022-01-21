@@ -19,7 +19,7 @@ class JsonHelper {
     };
   }
 
-  static Map<String, String> toMapWeekDay(WeatherInfoDay day) {
+  static Future<Map<String, String>> toMapWeekDayAsync(WeatherInfoDay day) async {
     var blockMaps = day.blocks.map((e) => toMapFromWeatherMoment(e)).toList();
     var encodedBlocks = jsonEncode(blockMaps);
 
@@ -52,7 +52,7 @@ class JsonHelper {
     return weatherMoment;
   }
 
-  static WeatherInfoDay fromMapToWeatherDay(Map<String, dynamic> map) {
+  static Future<WeatherInfoDay> fromMapToWeatherDayAsync(Map<String, dynamic> map) async {
     var weatherMoment = WeatherInfoDay.empty();
     weatherMoment.tempMax = int.parse(map['tempMax']!);
     weatherMoment.tempMin = int.parse(map['tempMin']!);
