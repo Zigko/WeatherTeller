@@ -46,14 +46,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
   _loadFromDisk() {
     saverLoader.load().then((value) {
-      _refresh(value, searchedLocation: searchedLocation);
+      _refresh(value);
     });
   }
 
-  _refresh(WeatherInfoForecast? forecast, {String? searchedLocation}) {
+  _refresh(WeatherInfoForecast? forecast) {
     if (forecast == null) {
       weatherAPI
-          .getForecastPlaceAsync(searchedLocation!)
+          .getForecastPlaceAsync(searchedLocation)
           .then((value) => _updateWeatherScreen(value))
           .catchError((error) {
         Fluttertoast.showToast(msg: error, toastLength: Toast.LENGTH_LONG);
@@ -111,7 +111,7 @@ class _HomeScreenState extends State<HomeScreen> {
               var text = myController.text;
               if (text.isNotEmpty) {
                 searchedLocation = text.trim();
-                _refresh(null, searchedLocation: searchedLocation);
+                _refresh(null);
               }
             }
             setState(() {
