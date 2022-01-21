@@ -8,5 +8,6 @@
     "wind" : "Wind",
     "connection_interrupted" : "Connection interrupted",
     "humidity" : "Humidity",
-    "last_update" : "Last update"
+    "last_update" : "Last update",
+    "search_location" : "Search for a location"
 }

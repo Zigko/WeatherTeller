@@ -38,6 +38,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Ultima atualização"),
         "probability":
             MessageLookupByLibrary.simpleMessage("Probabilidade  de chuva"),
+        "search_location":
+            MessageLookupByLibrary.simpleMessage("Pesquise localização"),
         "wind": MessageLookupByLibrary.simpleMessage("Vento")
       };
 }

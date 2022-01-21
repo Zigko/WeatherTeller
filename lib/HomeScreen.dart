@@ -143,13 +143,13 @@ class _HomeScreenState extends State<HomeScreen> {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                if (forecast != null)
+                if (forecast != null) ...[
                   GestureDetector(
                     behavior: HitTestBehavior.opaque,
                     onTap: () {
                       Navigator.pushNamed(context, DetailsScreen.routeName,
                           arguments:
-                              Arguments(forecast!.days[0], searchedLocation));
+                          Arguments(forecast!.days[0], searchedLocation));
                     },
                     child: Center(
                       child: Column(
@@ -167,9 +167,18 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                   ),
-                Flexible(
-                  child: _weekList(),
-                ),
+                  Flexible(
+                    child: _weekList(),
+                  ),
+                ] else ... [
+                   Padding(
+                    padding: const EdgeInsets.only(top: 130),
+                    child: Center(
+                      child: Text(S.of(context).search_location, style: const TextStyle(fontSize: 26)),
+                    ),
+                  )
+                ]
+
               ],
             ),
             if (forecast != null)
