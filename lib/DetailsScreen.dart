@@ -5,6 +5,7 @@ import 'package:weather/main.dart';
 
 import 'DataClasses.dart';
 import 'IconMap.dart';
+import 'generated/l10n.dart';
 
 class DetailsScreen extends StatefulWidget {
   static const routeName = '/details';
@@ -108,14 +109,13 @@ class _DetailsScreenState extends State<DetailsScreen> {
                     Text("Max: ${moment.tempMax}º", style: style20),
                     Text("Min: ${moment.tempMin}º", style: style20),
                   ],
-                  Text(
-                      "${Intl.message("", name: "probability")}: ${moment.rainProb}%",
+                  Text("${S.of(context).probability}: ${moment.rainProb}%",
                       style: style20),
                   Text(
-                      "${Intl.message("", name: "wind")}: ${moment.windSpeed} Km/h",
+                      "${S.of(context).wind}: ${moment.windSpeed} Km/h",
                       style: style20),
                   Text(
-                      "${Intl.message("", name: "humidity")}: ${moment.humidity}%",
+                      "${S.of(context).humidity}: ${moment.humidity}%",
                       style: style20),
                 ],
               ),
@@ -134,7 +134,8 @@ class _DetailsScreenState extends State<DetailsScreen> {
         duration: const Duration(milliseconds: animationDurationMs),
         opacity: animation ? 1 : 0,
         curve: Curves.easeInOutQuart,
-        child: Image.asset(IconMap.getPath(moment.icon), height: 130, width: 130),
+        child:
+            Image.asset(IconMap.getPath(moment.icon), height: 130, width: 130),
       ),
     );
   }

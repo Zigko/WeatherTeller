@@ -9,6 +9,7 @@ import 'package:weather/main.dart';
 
 import 'DataClasses.dart';
 import 'IconMap.dart';
+import 'generated/l10n.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -180,7 +181,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("${Intl.message("", name: "last_update")}:"),
+                      Text("${S.of(context).last_update}:"),
                       Text(
                           "${dayFormatter.format(forecast!.currentDay)} ${timeFormatter.format(forecast!.currentDay)}")
                     ],
