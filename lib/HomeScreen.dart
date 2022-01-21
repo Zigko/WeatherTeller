@@ -180,8 +180,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text("${Intl.message("", name: "last_update")}:"),
-                      Text(
-                          "${dayFormatter.format(forecast!.currentDay)} ${timeFormatter.format(forecast!.currentDay)}")
+                      Text("${dayFormatter.format(forecast!.currentDay)} ${timeFormatter.format(forecast!.currentDay)}")
                     ],
                   ),
                 ),
