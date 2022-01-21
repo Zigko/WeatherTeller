@@ -8,6 +8,7 @@ import 'package:weather/WeatherSaverLoader.dart';
 import 'package:weather/main.dart';
 
 import 'DataClasses.dart';
+import 'IconMap.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -180,7 +181,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text("${Intl.message("", name: "last_update")}:"),
-                      Text("${dayFormatter.format(forecast!.currentDay)} ${timeFormatter.format(forecast!.currentDay)}")
+                      Text(
+                          "${dayFormatter.format(forecast!.currentDay)} ${timeFormatter.format(forecast!.currentDay)}")
                     ],
                   ),
                 ),
@@ -255,7 +257,8 @@ class _HomeScreenState extends State<HomeScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Text("${model.weekday}, ${model.monthDay}"),
-                Image.network(model.imgPath),
+                Image.asset(IconMap.getPath(model.imgPath),
+                    width: 50, height: 50),
                 Text(model.temps),
               ],
             ),
@@ -289,12 +292,8 @@ class _HomeScreenState extends State<HomeScreen> {
         duration: const Duration(milliseconds: animationDurationMs),
         opacity: animation ? 1 : 0,
         curve: Curves.easeInOutQuart,
-        child: Image.network(
-          "https://openweathermap.org/img/wn/${forecast!.currentWeather.icon}@4x.png",
-          height: 160,
-          width: 160,
-          scale: 1,
-        ),
+        child: Image.asset(IconMap.getPath(forecast!.currentWeather.icon),
+            height: 160, width: 160),
       ),
     );
   }
@@ -314,7 +313,8 @@ class WeatherInfoDayModel {
     weekday = weekdayFormatter.format(day.date);
     monthDay = monthDayFormatter.format(day.date);
     temps = "${day.tempMax}º | ${day.tempMin}º";
-    imgPath = "https://openweathermap.org/img/wn/${day.icon}.png";
+    // imgPath = "https://openweathermap.org/img/wn/${day.icon}.png";
+    imgPath = day.icon;
   }
 }
 

@@ -9,6 +9,7 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 
 import 'DataClasses.dart';
+import 'IconMap.dart';
 
 class OpenWeatherAPI {
   //appid : f748cf33755afb0c35061a61f1d8b9d7

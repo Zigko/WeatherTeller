@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:weather/main.dart';
 
 import 'DataClasses.dart';
+import 'IconMap.dart';
 
 class DetailsScreen extends StatefulWidget {
   static const routeName = '/details';
@@ -16,10 +17,7 @@ class DetailsScreen extends StatefulWidget {
 
 class _DetailsScreenState extends State<DetailsScreen> {
   late final Arguments args =
-  ModalRoute
-      .of(context)!
-      .settings
-      .arguments as Arguments;
+      ModalRoute.of(context)!.settings.arguments as Arguments;
 
   late final WeatherInfoDay day = args.day;
   late final String location = args.location;
@@ -85,9 +83,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
               behavior: HitTestBehavior.opaque,
               onTap: () {
                 moment = thisDay;
-                setState(() {
-
-                });
+                setState(() {});
               },
               child: Center(
                 child: Column(
@@ -106,24 +102,20 @@ class _DetailsScreenState extends State<DetailsScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if(moment.tempMin == moment.tempMax)...[
+                  if (moment.tempMin == moment.tempMax) ...[
                     Text("Temp: ${moment.tempMax}º", style: style20),
-                  ] else
-                    ... [
-                      Text("Max: ${moment.tempMax}º", style: style20),
-                      Text("Min: ${moment.tempMin}º", style: style20),
-                    ],
+                  ] else ...[
+                    Text("Max: ${moment.tempMax}º", style: style20),
+                    Text("Min: ${moment.tempMin}º", style: style20),
+                  ],
                   Text(
-                      "${Intl.message("", name: "probability")}: ${moment
-                          .rainProb}%",
+                      "${Intl.message("", name: "probability")}: ${moment.rainProb}%",
                       style: style20),
                   Text(
-                      "${Intl.message("", name: "wind")}: ${moment
-                          .windSpeed} Km/h",
+                      "${Intl.message("", name: "wind")}: ${moment.windSpeed} Km/h",
                       style: style20),
                   Text(
-                      "${Intl.message("", name: "humidity")}: ${moment
-                          .humidity}%",
+                      "${Intl.message("", name: "humidity")}: ${moment.humidity}%",
                       style: style20),
                 ],
               ),
@@ -142,22 +134,8 @@ class _DetailsScreenState extends State<DetailsScreen> {
         duration: const Duration(milliseconds: animationDurationMs),
         opacity: animation ? 1 : 0,
         curve: Curves.easeInOutQuart,
-        child: Image.network(
-          "https://openweathermap.org/img/wn/${moment.icon}@4x.png",
-          height: 130,
-          width: 130,
-          scale: 1,
-        ),
+        child: Image.asset(IconMap.getPath(moment.icon), height: 130, width: 130),
       ),
-    );
-  }
-
-  _iconBlock(String icon) {
-    return Image.network(
-      "https://openweathermap.org/img/wn/$icon@2x.png",
-      height: 80,
-      width: 80,
-      scale: 1,
     );
   }
 
@@ -202,17 +180,11 @@ class _DetailsScreenState extends State<DetailsScreen> {
             children: [
               Text("${block.date.hour}H"),
               Text("${block.tempMax}º"),
-              Image.network(
-                "https://openweathermap.org/img/wn/${block.icon}@2x.png",
-                height: 80,
-                width: 80,
-                scale: 1,
-              ),
+              Image.asset(IconMap.getPath(block.icon), height: 80, width: 80),
             ],
           ),
         ),
       ),
     );
   }
-
 }

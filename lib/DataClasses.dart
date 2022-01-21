@@ -1,7 +1,7 @@
 import 'dart:collection';
 
 import 'package:flutter/cupertino.dart';
-import 'package:location/location.dart';
+import 'package:weather/IconMap.dart';
 
 class WeatherInfoForecast {
   late List<WeatherInfoDay> days;
@@ -17,12 +17,12 @@ class WeatherInfoForecast {
   WeatherInfoForecast.empty();
 }
 
-class LatLon{
+class LatLon {
   double lat;
   double lon;
+
   LatLon(this.lat, this.lon);
 }
-
 
 class WeatherState {
   late final int importance;
