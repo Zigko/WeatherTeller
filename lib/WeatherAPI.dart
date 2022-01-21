@@ -29,6 +29,8 @@ class OpenWeatherAPI {
       "https://api.openweathermap.org/data/2.5/forecast?";
   static const String weatherURI =
       "https://api.openweathermap.org/data/2.5/weather?";
+  static const String geoCodingURI =
+      "http://api.openweathermap.org/geo/1.0/reverse?";
 
   //5 day / 3 hour forecast data
   //api.openweathermap.org/data/2.5/forecast?q={city name}&cnt={cnt}&appid={API key}
@@ -53,8 +55,14 @@ class OpenWeatherAPI {
       {LatLon? latLon}) async {
     var currentWeatherTask = _getDayDetailsAsync(options);
 
-    var uri = Uri.parse(forecastURI + options + remainingQuery);
+    Future<Response>? geoCodingTask;
+    if (latLon != null) {
+      var geoUri = Uri.parse(
+          "${geoCodingURI}lat=${latLon.lat}&lon=${latLon.lon}&limit=1&appid=$appid");
+      geoCodingTask = http.get(geoUri);
+    }
 
+    var uri = Uri.parse(forecastURI + options + remainingQuery);
     Response? response;
     try {
       response = await http.get(uri);
@@ -99,7 +107,19 @@ class OpenWeatherAPI {
 
     var forecast = WeatherInfoForecast(
         list, currentWeather, DateTime.now(), placeName, lang);
+
     if (latLon != null) {
+      var result = await geoCodingTask!;
+      if (result.statusCode != 200) {
+        if (result.statusCode == 404) {
+          return Future.error(Intl.message('', name: 'city_not_found'));
+        }
+        return Future.error(Intl.message('', name: 'error_forecast'));
+      }
+      var list = jsonDecode(utf8.decode(result.bodyBytes)) as List<dynamic>;
+      var map = list[0] as Map<String, dynamic>;
+      String? location = map['local_names'][lang];
+      forecast.location = location ?? map['name'];
       forecast.latLon = latLon;
     }
     return forecast;
