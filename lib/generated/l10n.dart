@@ -149,6 +149,16 @@ class S {
       args: [],
     );
   }
+
+  /// `Search for a location`
+  String get search_location {
+    return Intl.message(
+      'Search for a location',
+      name: 'search_location',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {
