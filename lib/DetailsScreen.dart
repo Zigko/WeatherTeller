@@ -16,7 +16,10 @@ class DetailsScreen extends StatefulWidget {
 
 class _DetailsScreenState extends State<DetailsScreen> {
   late final Arguments args =
-      ModalRoute.of(context)!.settings.arguments as Arguments;
+  ModalRoute
+      .of(context)!
+      .settings
+      .arguments as Arguments;
 
   late final WeatherInfoDay day = args.day;
   late final String location = args.location;
@@ -80,7 +83,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
           children: [
             GestureDetector(
               behavior: HitTestBehavior.opaque,
-              onTap: (){
+              onTap: () {
                 moment = thisDay;
                 setState(() {
 
@@ -103,16 +106,24 @@ class _DetailsScreenState extends State<DetailsScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("Max: ${moment.tempMax}º", style: style20),
-                  Text("Min: ${moment.tempMin}º", style: style20),
+                  if(moment.tempMin == moment.tempMax)...[
+                    Text("Temp: ${moment.tempMax}º", style: style20),
+                  ] else
+                    ... [
+                      Text("Max: ${moment.tempMax}º", style: style20),
+                      Text("Min: ${moment.tempMin}º", style: style20),
+                    ],
                   Text(
-                      "${Intl.message("", name: "probability")}: ${moment.rainProb}%",
+                      "${Intl.message("", name: "probability")}: ${moment
+                          .rainProb}%",
                       style: style20),
                   Text(
-                      "${Intl.message("", name: "wind")}: ${moment.windSpeed} Km/h",
+                      "${Intl.message("", name: "wind")}: ${moment
+                          .windSpeed} Km/h",
                       style: style20),
                   Text(
-                      "${Intl.message("", name: "humidity")}: ${moment.humidity}%",
+                      "${Intl.message("", name: "humidity")}: ${moment
+                          .humidity}%",
                       style: style20),
                 ],
               ),

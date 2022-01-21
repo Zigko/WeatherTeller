@@ -46,6 +46,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   _loadFromDisk() {
     saverLoader.load().then((value) {
+      if(value == null) return;
       _refresh(value);
     });
   }
