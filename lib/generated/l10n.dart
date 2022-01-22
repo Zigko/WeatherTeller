@@ -159,6 +159,16 @@ class S {
       args: [],
     );
   }
+
+  /// `Details`
+  String get details_screen {
+    return Intl.message(
+      'Details',
+      name: 'details_screen',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

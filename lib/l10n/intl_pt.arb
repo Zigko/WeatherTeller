@@ -9,5 +9,6 @@
   "connection_interrupted": "Conexão interrompida",
   "humidity" : "Humidade",
   "last_update" : "Ultima atualização",
-  "search_location" : "Pesquise localização"
+  "search_location" : "Pesquise localização",
+  "details_screen": "Detalhes"
 }

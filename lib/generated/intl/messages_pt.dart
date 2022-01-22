@@ -26,6 +26,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Cidade não encontrada"),
         "connection_interrupted":
             MessageLookupByLibrary.simpleMessage("Conexão interrompida"),
+        "details_screen": MessageLookupByLibrary.simpleMessage("Detalhes"),
         "error_forecast": MessageLookupByLibrary.simpleMessage(
             "Error a obter previsão do tempo"),
         "gps_blocked": MessageLookupByLibrary.simpleMessage(

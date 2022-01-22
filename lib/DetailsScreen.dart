@@ -66,7 +66,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Center(child: Text("WeatherTeller")),
+        title: Center(child: Text(S.of(context).details_screen)),
       ),
       body: Container(
         decoration: BoxDecoration(
