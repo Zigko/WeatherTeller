@@ -150,7 +150,6 @@ class _DetailsScreenState extends State<DetailsScreen> {
             separatorBuilder: (_, __) => const VerticalDivider(),
             controller: controller,
             scrollDirection: Axis.horizontal,
-            // TODO this wont work
             itemCount: day.blocks.length,
             itemBuilder: (context, index) {
               return _animatedHourColumn(day.blocks[index]);

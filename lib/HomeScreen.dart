@@ -87,7 +87,7 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  //TODO fix intl messages not in other languages, maybe previours fix fixes this fix
+
 
   _updateWeatherScreen(WeatherInfoForecast weatherInfoForecast) {
     animation = false;
@@ -117,6 +117,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 searchedLocation = text.trim();
                 _refresh(null);
               }
+            }else{
+              myController.text = "";
             }
             setState(() {
               typing = !typing;
